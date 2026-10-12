@@ -77,7 +77,7 @@ com a assistents d'IA (ChatGPT, Claude, Perplexity…).
   ClaudeBot, anthropic-ai, Google-Extended, PerplexityBot, Applebot-Extended,
   cohere-ai.
 - `sitemap.xml`, meta description, Open Graph, canonical a
-  `https://www.juditcamps.com/`.
+  `https://juditcamps.com/`.
 - Pàgines legals amb `noindex, follow`.
 
 ### Repositori

@@ -33,4 +33,4 @@ Allow: /
 User-agent: cohere-ai
 Allow: /
 
-Sitemap: https://www.juditcamps.com/sitemap.xml
+Sitemap: https://juditcamps.com/sitemap.xml

@@ -19,7 +19,7 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self' https://formspree.io; base-uri 'self'; object-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
@@ -230,10 +230,11 @@
                 <p>Escriu-me a través del formulari i et respondré el més aviat possible.</p>
             </div>
             <!--
-              Formulari protegit amb Cloudflare Turnstile (captcha) i enviat via Formspree.
-              Substituir FORMSPREE_ID i TURNSTILE_SITE_KEY abans de publicar.
+              Formulari propi: s'envia al backend /api/contact (Cloud Run),
+              que verifica el captcha Turnstile i envia el correu via Workspace.
+              La sitekey pública de Turnstile s'injecta al desplegament.
             -->
-            <form class="card contact-form" action="https://formspree.io/f/FORMSPREE_ID" method="POST" novalidate>
+            <form class="card contact-form" action="/api/contact" method="POST" novalidate>
                 <label for="nom">Nom i cognoms *</label>
                 <input type="text" id="nom" name="nom" required maxlength="100" autocomplete="name">
 
