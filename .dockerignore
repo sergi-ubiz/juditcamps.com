@@ -1,0 +1,9 @@
+.git
+.gitignore
+.DS_Store
+assets-src
+credentials
+README.md
+project_context.md
+terminals
+*.log
