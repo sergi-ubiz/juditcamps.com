@@ -30,11 +30,10 @@ tallers a escoles i ha dissenyat menús escolars.
 ## Contacte
 
 - Consulta: Centre Peu Peu, Carretera de Balenyà 33, Taradell (Osona)
-- Telèfon: +34 660 347 743
-- Email: info@juditcamps.com
-- Web: https://www.juditcamps.com
+- Contacte: formulari de contacte a https://juditcamps.com/#contacte
+- Web: https://juditcamps.com
 
 ## Pàgines
 
-- [Inici](https://www.juditcamps.com/): filosofia, experiència i serveis
-- [Contacte](https://www.juditcamps.com/#contacte): formulari de reserva de cita
+- [Inici](https://juditcamps.com/): filosofia, experiència i serveis
+- [Contacte](https://juditcamps.com/#contacte): formulari de reserva de cita

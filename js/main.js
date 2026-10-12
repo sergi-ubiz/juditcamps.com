@@ -92,7 +92,7 @@
                     if (window.turnstile) window.turnstile.reset();
                     setStatus("Missatge enviat. Et respondré tan aviat com pugui!", false);
                 } else {
-                    setStatus("No s'ha pogut enviar. Torna-ho a provar o escriu a info@juditcamps.com.", true);
+                    setStatus("No s'ha pogut enviar. Torna-ho a provar d'aquí a uns minuts.", true);
                 }
             })
             .catch(function () {
