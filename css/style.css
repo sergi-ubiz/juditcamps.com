@@ -1,0 +1,221 @@
+/* ============================================================
+   Judit Camps · Dietista i Nutricionista
+   Paleta: verds suaus + neutres càlids. Estil fi, modern, serè.
+   ============================================================ */
+
+:root {
+    --green-900: #2f3e2f;
+    --green-700: #41573f;
+    --green-500: #5a7d5a;
+    --green-300: #b7c9a8;
+    --cream: #faf8f3;
+    --sand: #f1ece1;
+    --ink: #33382f;
+    --muted: #6b7164;
+    --radius: 14px;
+    --shadow: 0 10px 40px rgba(47, 62, 47, 0.08);
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-body: "Inter", Helvetica, Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--cream);
+    -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.narrow { max-width: 760px; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; color: var(--green-900); }
+h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); line-height: 1.1; }
+h1 em { font-style: italic; color: var(--green-500); }
+h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 1rem; }
+h3 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+p { margin-bottom: 1rem; }
+a { color: var(--green-700); }
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--green-500);
+    margin-bottom: 0.75rem;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250, 248, 243, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(90, 125, 90, 0.12);
+}
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; }
+.brand img { display: block; height: 52px; width: auto; }
+.nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+.nav-links a { text-decoration: none; font-size: 0.95rem; font-weight: 400; }
+.nav-links a:hover { color: var(--green-500); }
+.nav-toggle { display: none; background: none; border: none; font-size: 1.6rem; color: var(--green-900); cursor: pointer; }
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-block;
+    background: var(--green-700);
+    color: #fff !important;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+.btn:hover { background: var(--green-500); transform: translateY(-2px); }
+.btn-ghost { background: transparent; color: var(--green-700) !important; border: 1.5px solid var(--green-500); }
+.btn-ghost:hover { background: var(--green-300); }
+.btn-small { padding: 9px 22px; }
+
+/* ---------- Hero ---------- */
+.hero {
+    padding: 110px 0 130px;
+    background:
+        radial-gradient(ellipse 70% 60% at 85% 10%, rgba(183, 201, 168, 0.35), transparent),
+        radial-gradient(ellipse 50% 50% at 10% 90%, rgba(241, 236, 225, 0.9), transparent),
+        var(--cream);
+    text-align: center;
+}
+.hero .lead { max-width: 620px; margin: 1.6rem auto 2.4rem; font-size: 1.15rem; color: var(--muted); }
+.hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------- Sections ---------- */
+.section { padding: 96px 0; }
+.section-alt { background: var(--sand); }
+
+.grid-2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: start; }
+
+.card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px;
+}
+.card ul { list-style: none; margin-bottom: 1.2rem; }
+.card ul li { padding: 5px 0 5px 26px; position: relative; }
+.card ul li::before {
+    content: "";
+    position: absolute; left: 0; top: 13px;
+    width: 12px; height: 12px;
+    background: var(--green-300);
+    border-radius: 50% 0 50% 50%;
+}
+
+.credentials h3 { margin-top: 1rem; }
+.credentials h3:first-child { margin-top: 0; }
+
+/* ---------- Serveis ---------- */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 24px;
+    margin-top: 2rem;
+}
+.specialty-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--green-500);
+    border: 1px solid var(--green-300);
+    border-radius: 999px;
+    padding: 2px 12px;
+    margin-bottom: 0.8rem;
+}
+
+/* ---------- Mètode ---------- */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin-top: 2rem; }
+.step span {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--green-300);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+}
+
+/* ---------- Formulari ---------- */
+.contact-form label { display: block; font-size: 0.85rem; font-weight: 500; margin: 14px 0 4px; }
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d8d4c8;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    background: var(--cream);
+    transition: border-color 0.2s;
+}
+.contact-form input:focus, .contact-form textarea:focus {
+    outline: none; border-color: var(--green-500);
+}
+.contact-form .btn { margin-top: 18px; width: 100%; }
+.consent { font-size: 0.82rem !important; font-weight: 300 !important; display: flex; gap: 8px; align-items: flex-start; margin-top: 16px !important; }
+.consent input { margin-top: 4px; }
+.legal-note { font-size: 0.72rem; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+.form-status { font-size: 0.9rem; margin-top: 10px; font-weight: 500; }
+.form-status.ok { color: var(--green-500); }
+.form-status.error { color: #b3473e; }
+.hp { position: absolute; left: -9999px; opacity: 0; height: 0; }
+.cf-turnstile { margin-top: 16px; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+    background: var(--green-900);
+    color: #e8e6dd;
+    padding: 48px 0;
+    text-align: center;
+    font-size: 0.85rem;
+}
+.footer-inner img { filter: brightness(0) invert(0.95); margin-bottom: 16px; }
+.site-footer a { color: var(--green-300); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer p { margin: 10px 0 0; }
+
+/* ---------- Animacions reveal ---------- */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+    .grid-2 { grid-template-columns: 1fr; gap: 32px; }
+    .nav-toggle { display: block; }
+    .nav-links {
+        display: none;
+        position: absolute; top: 100%; left: 0; right: 0;
+        flex-direction: column;
+        background: var(--cream);
+        padding: 20px;
+        border-bottom: 1px solid rgba(90, 125, 90, 0.15);
+    }
+    .nav-links.open { display: flex; }
+    .hero { padding: 70px 0 90px; }
+    .section { padding: 64px 0; }
+}
