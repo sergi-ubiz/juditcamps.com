@@ -1,5 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="30" fill="#f6f3ec" stroke="#5a7d5a" stroke-width="2"/>
-  <path d="M32 50 C32 36 37 25 48 17 C42 34 38 44 33 50 Z" fill="#5a7d5a"/>
-  <path d="M32 50 C32 39 27 30 19 24 C24 38 27 44 30 50 Z" fill="#b7c9a8"/>
+  <!-- Marca Judit Camps: fulla menta dins cercle fi, sobre fons crema -->
+  <circle cx="32" cy="32" r="30" fill="#ffffff" stroke="#7cccaf" stroke-width="2.5"/>
+  <g fill="none" stroke="#7cccaf" stroke-width="2.5" stroke-linecap="round">
+    <!-- contorn de la fulla -->
+    <path d="M32 52 C20 44 16 30 24 19 C30 12 40 10 46 14 C48 26 46 40 32 52 Z"/>
+    <!-- nervi central -->
+    <path d="M32 52 C34 40 38 26 44 16"/>
+    <!-- nervis laterals -->
+    <path d="M34 44 L25 38"/>
+    <path d="M36 36 L28 30"/>
+    <path d="M38 28 L31 23"/>
+    <path d="M41 21 L36 17"/>
+  </g>
 </svg>

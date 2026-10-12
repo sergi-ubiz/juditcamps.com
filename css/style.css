@@ -1,20 +1,21 @@
 /* ============================================================
-   Judit Camps · Dietista i Nutricionista
-   Paleta: verds suaus + neutres càlids. Estil fi, modern, serè.
+   Judit Camps · Dietètica i Nutrició
+   Paleta oficial de marca: taupe #857774 + verd menta #7cccaf.
+   Tipografia de marca: geomètrica arrodonida (Quicksand).
    ============================================================ */
 
 :root {
-    --green-900: #2f3e2f;
-    --green-700: #41573f;
-    --green-500: #5a7d5a;
-    --green-300: #b7c9a8;
-    --cream: #faf8f3;
-    --sand: #f1ece1;
-    --ink: #33382f;
-    --muted: #6b7164;
+    --green-900: #5a4f4c;   /* taupe fosc (titulars) */
+    --green-700: #857774;   /* taupe de marca (text secundari, enllaços) */
+    --green-500: #4aa98c;   /* menta fosc (accents amb bon contrast) */
+    --green-300: #7cccaf;   /* menta de marca (decoració) */
+    --cream: #fbfaf8;
+    --sand: #f3efec;
+    --ink: #4a4341;
+    --muted: #8a7f7c;
     --radius: 14px;
-    --shadow: 0 10px 40px rgba(47, 62, 47, 0.08);
-    --font-display: "Cormorant Garamond", Georgia, serif;
+    --shadow: 0 10px 40px rgba(90, 79, 76, 0.08);
+    --font-display: "Quicksand", "Trebuchet MS", sans-serif;
     --font-body: "Inter", Helvetica, Arial, sans-serif;
 }
 
@@ -37,7 +38,7 @@ body {
 
 h1, h2, h3 { font-family: var(--font-display); font-weight: 500; color: var(--green-900); }
 h1 { font-size: clamp(2.6rem, 6vw, 4.2rem); line-height: 1.1; }
-h1 em { font-style: italic; color: var(--green-500); }
+h1 em { font-style: normal; color: var(--green-500); }
 h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 1rem; }
 h3 { font-size: 1.35rem; margin-bottom: 0.5rem; }
 p { margin-bottom: 1rem; }
@@ -55,9 +56,9 @@ a { color: var(--green-700); }
 /* ---------- Header ---------- */
 .site-header {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(250, 248, 243, 0.92);
+    background: rgba(251, 250, 248, 0.92);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(90, 125, 90, 0.12);
+    border-bottom: 1px solid rgba(124, 204, 175, 0.12);
 }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; }
 .brand img { display: block; height: 52px; width: auto; }
@@ -91,8 +92,8 @@ a { color: var(--green-700); }
 .hero {
     padding: 110px 0 130px;
     background:
-        radial-gradient(ellipse 70% 60% at 85% 10%, rgba(183, 201, 168, 0.35), transparent),
-        radial-gradient(ellipse 50% 50% at 10% 90%, rgba(241, 236, 225, 0.9), transparent),
+        radial-gradient(ellipse 70% 60% at 85% 10%, rgba(124, 204, 175, 0.25), transparent),
+        radial-gradient(ellipse 50% 50% at 10% 90%, rgba(243, 239, 236, 0.9), transparent),
         var(--cream);
     text-align: center;
 }
@@ -162,7 +163,7 @@ a { color: var(--green-700); }
 .contact-form textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 1px solid #d8d4c8;
+    border: 1px solid #dcd6d2;
     border-radius: 8px;
     font-family: var(--font-body);
     font-size: 0.95rem;
@@ -213,7 +214,7 @@ a { color: var(--green-700); }
         flex-direction: column;
         background: var(--cream);
         padding: 20px;
-        border-bottom: 1px solid rgba(90, 125, 90, 0.15);
+        border-bottom: 1px solid rgba(124, 204, 175, 0.15);
     }
     .nav-links.open { display: flex; }
     .hero { padding: 70px 0 90px; }
