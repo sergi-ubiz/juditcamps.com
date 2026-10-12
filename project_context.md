@@ -120,9 +120,15 @@ com a assistents d'IA (ChatGPT, Claude, Perplexity…).
 1. Crear formulari a Formspree i substituir `FORMSPREE_ID` a `index.html`.
 2. Crear widget Cloudflare Turnstile pel domini i substituir
    `TURNSTILE_SITE_KEY`; activar verificació del token a Formspree.
-3. Afegir `assets/og-image.jpg` (1200×630) amb foto professional de la Judit.
-4. Triar hosting estàtic (recomanat: Cloudflare Pages o GitHub Pages) i
-   apuntar-hi el DNS (A/CNAME a Dyn, o migrar DNS a Cloudflare conservant
-   els MX de Google).
+3. ~~Afegir `assets/og-image.jpg` (1200×630)~~ **FET** (2026-10-12): targeta
+   de marca generada amb `assets-src/og-card.html` (monograma + wordmark +
+   tagline). Opcional substituir-la per una amb foto professional de la Judit.
+4. ~~Triar hosting estàtic~~ **FET** (2026-10-12): GitHub Pages activat al
+   repo (branca `main`, arrel). URL provisional:
+   https://sergi-ubiz.github.io/juditcamps.com/ — el repo s'ha fet públic
+   (sense secrets; `credentials/` i `assets-src/` exclosos per .gitignore).
+   Quan el domini estigui a GoDaddy: configurar custom domain
+   `juditcamps.com` a Pages (CNAME) i apuntar DNS (A als IPs de GitHub Pages
+   + CNAME www), conservant els MX de Google.
 5. Opcional: recuperar la botiga de l'ebook i la reserva de cita online.
 6. Opcional: substituir el wordmark si apareix el logo original.
