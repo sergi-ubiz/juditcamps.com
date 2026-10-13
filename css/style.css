@@ -105,6 +105,8 @@ a { color: var(--green-700); }
 .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .brand img { display: block; height: 52px; width: auto; }
+/* logo-es.png és més alt pel descendent de la "y": mateixa escala que logo.png */
+.brand img.logo-es { height: 55px; margin-bottom: -3px; }
 .brand .brand-leaf { height: 42px; opacity: 0.9; transform: rotate(-8deg); }
 .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
 .nav-links a { text-decoration: none; font-size: 0.95rem; font-weight: 400; }
