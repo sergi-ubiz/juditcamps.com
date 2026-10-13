@@ -2,7 +2,9 @@
  * juditcamps.com — interaccions de la pàgina.
  * - Menú mòbil accessible
  * - Animacions "reveal" amb IntersectionObserver
- * - Enviament del formulari de contacte via Formspree (amb Turnstile captcha)
+ * - Enviament del formulari de contacte al backend propi (/api/contact)
+ * - Turnstile es carrega només quan l'usuari interactua amb el formulari, perquè
+ *   cap visitant que no l'utilitzi enviï dades a Cloudflare.
  */
 (function () {
     "use strict";
@@ -56,6 +58,29 @@
     var form = document.querySelector(".contact-form");
     if (!form) return;
     var statusEl = form.querySelector(".form-status");
+
+    var turnstileRequested = false;
+    function loadTurnstile() {
+        if (turnstileRequested) return;
+        turnstileRequested = true;
+        window.onTurnstileLoad = function () {
+            try {
+                window.turnstile.render(".cf-turnstile");
+            } catch (err) {
+                setStatus("No s'ha pogut carregar la verificació de seguretat.", true);
+            }
+        };
+        var script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js" +
+            "?render=explicit&onload=onTurnstileLoad";
+        script.async = true;
+        script.onerror = function () {
+            setStatus("No s'ha pogut carregar la verificació de seguretat.", true);
+        };
+        document.head.appendChild(script);
+    }
+    form.addEventListener("focusin", loadTurnstile);
+    form.addEventListener("pointerdown", loadTurnstile);
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();

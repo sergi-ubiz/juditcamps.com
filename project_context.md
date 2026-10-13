@@ -213,6 +213,16 @@ vista). Adreça encara visible.
 
 ## 13. Pendent / pròxims passos
 
+0. **Dades legals obligatòries** (revisió legal del 13/10): substituir els
+   marcadors `[NIF PENDENT]` i `[CAT-PENDENT]` (núm. de col·legiada CoDiNuCat) a
+   `avis-legal.html`, `privadesa.html` i als footers de totes les pàgines. **No
+   desplegar amb els marcadors visibles.** Confirmar amb el centre Peu Peu si
+   cal publicar el número de registre sanitari del centre.
+   Canvis fets: fonts allotjades localment (sense Google Fonts), Turnstile es
+   carrega només en interactuar amb el formulari, informació de primera capa
+   RGPD al formulari, consentiment explícit (art. 9.2.a) per a dades de salut,
+   constància del consentiment al correu, i correu `info@juditcamps.com` publicat
+   a les pàgines legals (exigit per l'art. 10 LSSI).
 1. **Secrets del formulari** (§9) → desar a Secret Manager + redeploy. **Únic
    pendent crític** perquè el formulari de contacte funcioni.
 2. ✅ ~~DNS a Dyn + domain mapping~~ — FET (§7). `https://juditcamps.com` en viu.

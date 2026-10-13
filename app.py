@@ -16,6 +16,7 @@ import re
 import smtplib
 import ssl
 import time
+from datetime import datetime, timezone
 from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 
@@ -36,6 +37,9 @@ CONTACT_TO = os.environ.get("CONTACT_TO", "info@juditcamps.com")
 CONTACT_FROM = os.environ.get("CONTACT_FROM", SMTP_USER or CONTACT_TO)
 
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+# Data de la versió de privadesa.html acceptada; actualitzar-la si canvia el text.
+PRIVACY_POLICY_VERSION = "2026-10-13"
 
 # Límits de longitud (coherents amb els atributs maxlength del formulari)
 MAX_LENGTHS = {
@@ -101,6 +105,7 @@ def _build_message(data: dict) -> EmailMessage:
     """Construeix el correu electrònic a partir de les dades validades."""
     submitter_name = data["nom"]
     submitter_email = data["email"]
+    consent_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     message = EmailMessage()
     message["Subject"] = f"Nova sol·licitud de cita — {submitter_name}"
@@ -116,7 +121,12 @@ def _build_message(data: dict) -> EmailMessage:
         f"Correu: {submitter_email}\n"
         f"Telèfon: {data['telefon']}\n\n"
         "Comentari:\n"
-        f"{data['missatge']}\n"
+        f"{data['missatge']}\n\n"
+        "------------------------------------------------\n"
+        f"Consentiment RGPD (art. 6.1.a i 9.2.a) acceptat el {consent_timestamp}, "
+        f"política de privadesa versió {PRIVACY_POLICY_VERSION}.\n"
+        "Conservació: suprimir aquest correu als 12 mesos de l'última "
+        "comunicació si no s'inicia relació professional.\n"
     )
     message.set_content(body)
     return message

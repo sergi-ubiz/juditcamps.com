@@ -19,13 +19,11 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; form-action 'self'; base-uri 'self'; object-src 'none'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="css/style.css">
 
     <!-- Structured data: professional profile for search engines and AI assistants -->
@@ -246,7 +244,11 @@
                 <input type="tel" id="telefon" name="telefon" required pattern="[0-9+ ]{9,15}" autocomplete="tel">
 
                 <label for="missatge">Comentari *</label>
-                <textarea id="missatge" name="missatge" rows="4" required maxlength="2000"></textarea>
+                <textarea id="missatge" name="missatge" rows="4" required maxlength="2000"
+                    aria-describedby="missatge-hint"></textarea>
+                <p class="field-hint" id="missatge-hint">Explica'm breument el motiu de
+                la consulta. No cal que hi detallis informació de salut: en parlarem
+                a la primera visita.</p>
 
                 <!-- Honeypot anti-spam -->
                 <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -255,15 +257,27 @@
                 <div class="cf-turnstile" data-sitekey="TURNSTILE_SITE_KEY"></div>
 
                 <label class="consent">
-                    <input type="checkbox" name="consentiment" required>
-                    He llegit i accepto la <a href="privadesa.html">política de privadesa</a> *
+                    <input type="checkbox" name="consentiment" value="si" required>
+                    <span>He llegit la <a href="privadesa.html">política de privadesa</a>
+                    i consento expressament el tractament de les meves dades (incloses
+                    les de salut que pugui indicar) per gestionar la meva sol·licitud.
+                    Soc major de 14 anys o el pare, la mare o el tutor legal de la
+                    persona interessada. *</span>
                 </label>
 
                 <button type="submit" class="btn">Enviar</button>
                 <p class="form-status" role="status" aria-live="polite"></p>
-                <p class="legal-note">Finalitat: respondre a la teva sol·licitud.
-                Legitimació: consentiment de la persona interessada. No es preveuen
-                cessions de dades. Pots exercir els teus drets a través del formulari de contacte.</p>
+                <p class="legal-note"><strong>Informació bàsica sobre protecció de
+                dades.</strong> Responsable: Judit Camps Pujolar.
+                Finalitat: atendre la teva sol·licitud i, si escau, concertar la cita.
+                Legitimació: el teu consentiment (art. 6.1.a i 9.2.a RGPD).
+                Destinataris: no se cedeixen dades a tercers; hi tenen accés els
+                proveïdors tecnològics (Google i Cloudflare) com a encarregats del
+                tractament. Drets: accés, rectificació, supressió, oposició,
+                limitació i portabilitat, escrivint a
+                <a href="mailto:info@juditcamps.com">info@juditcamps.com</a>.
+                Més informació a la <a href="privadesa.html">política de
+                privadesa</a>.</p>
             </form>
         </div>
     </section>
@@ -277,11 +291,11 @@
             <a href="privadesa.html">Política de privadesa</a> ·
             <a href="cookies.html">Política de cookies</a>
         </nav>
-        <p>© <span id="year">2026</span> Judit Camps Pujolar · Taradell, Osona</p>
+        <p>© <span id="year">2026</span> Judit Camps Pujolar · Dietista-nutricionista
+        col·legiada núm. <span class="pending">[CAT-PENDENT]</span> · Taradell, Osona</p>
     </div>
 </footer>
 
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="js/main.js"></script>
 </body>
 </html>
