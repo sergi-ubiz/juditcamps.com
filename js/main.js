@@ -59,15 +59,41 @@
     if (!form) return;
     var statusEl = form.querySelector(".form-status");
 
+    var messages = {
+        ca: {
+            captchaLoad: "No s'ha pogut carregar la verificació de seguretat.",
+            captchaMissing: "Si us plau, completa la verificació de seguretat.",
+            sending: "Enviant…",
+            sent: "Missatge enviat. Et respondré tan aviat com pugui!",
+            failed: "No s'ha pogut enviar. Torna-ho a provar d'aquí a uns minuts.",
+            network: "Error de connexió. Torna-ho a provar més tard."
+        },
+        es: {
+            captchaLoad: "No se ha podido cargar la verificación de seguridad.",
+            captchaMissing: "Por favor, completa la verificación de seguridad.",
+            sending: "Enviando…",
+            sent: "Mensaje enviado. ¡Te responderé lo antes posible!",
+            failed: "No se ha podido enviar. Vuelve a intentarlo en unos minutos.",
+            network: "Error de conexión. Vuelve a intentarlo más tarde."
+        }
+    };
+    var text = messages[document.documentElement.lang] || messages.ca;
+
     var turnstileRequested = false;
     function loadTurnstile() {
         if (turnstileRequested) return;
         turnstileRequested = true;
         window.onTurnstileLoad = function () {
             try {
-                window.turnstile.render(".cf-turnstile");
+                var widget = form.querySelector(".cf-turnstile");
+                var isLocalHost = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+                if (isLocalHost && widget.dataset.sitekey === "TURNSTILE_SITE_KEY") {
+                    /* Clau de prova oficial de Cloudflare: sempre valida */
+                    widget.dataset.sitekey = "1x00000000000000000000AA";
+                }
+                window.turnstile.render(widget);
             } catch (err) {
-                setStatus("No s'ha pogut carregar la verificació de seguretat.", true);
+                setStatus(text.captchaLoad, true);
             }
         };
         var script = document.createElement("script");
@@ -75,7 +101,7 @@
             "?render=explicit&onload=onTurnstileLoad";
         script.async = true;
         script.onerror = function () {
-            setStatus("No s'ha pogut carregar la verificació de seguretat.", true);
+            setStatus(text.captchaLoad, true);
         };
         document.head.appendChild(script);
     }
@@ -98,11 +124,11 @@
         /* Captcha Turnstile obligatori */
         var tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
         if (!tokenInput || !tokenInput.value) {
-            setStatus("Si us plau, completa la verificació de seguretat.", true);
+            setStatus(text.captchaMissing, true);
             return;
         }
 
-        setStatus("Enviant…", false);
+        setStatus(text.sending, false);
         var btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
 
@@ -115,13 +141,13 @@
                 if (res.ok) {
                     form.reset();
                     if (window.turnstile) window.turnstile.reset();
-                    setStatus("Missatge enviat. Et respondré tan aviat com pugui!", false);
+                    setStatus(text.sent, false);
                 } else {
-                    setStatus("No s'ha pogut enviar. Torna-ho a provar d'aquí a uns minuts.", true);
+                    setStatus(text.failed, true);
                 }
             })
             .catch(function () {
-                setStatus("Error de connexió. Torna-ho a provar més tard.", true);
+                setStatus(text.network, true);
             })
             .finally(function () {
                 btn.disabled = false;

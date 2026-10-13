@@ -21,7 +21,7 @@ from email.message import EmailMessage
 from email.utils import formataddr, parseaddr
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, abort, jsonify, request, send_from_directory
 
 app = Flask(__name__)
 
@@ -37,6 +37,11 @@ CONTACT_TO = os.environ.get("CONTACT_TO", "info@juditcamps.com")
 CONTACT_FROM = os.environ.get("CONTACT_FROM", SMTP_USER or CONTACT_TO)
 
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+# Secret de prova oficial de Cloudflare (sempre valida); només per a ús local.
+TURNSTILE_TEST_SECRET = "1x0000000000000000000000000000000AA"
+
+# En local sense SMTP, el correu es mostra per consola en lloc d'enviar-se.
+LOCAL_DRY_RUN = False
 
 # Data de la versió de privadesa.html acceptada; actualitzar-la si canvia el text.
 PRIVACY_POLICY_VERSION = "2026-10-13"
@@ -119,7 +124,8 @@ def _build_message(data: dict) -> EmailMessage:
         "------------------------------------------------\n\n"
         f"Nom i cognoms: {submitter_name}\n"
         f"Correu: {submitter_email}\n"
-        f"Telèfon: {data['telefon']}\n\n"
+        f"Telèfon: {data['telefon']}\n"
+        f"Idioma del formulari: {data['idioma']}\n\n"
         "Comentari:\n"
         f"{data['missatge']}\n\n"
         "------------------------------------------------\n"
@@ -160,7 +166,7 @@ def health() -> tuple:
 def contact() -> tuple:
     """Rep, valida i envia el formulari de contacte."""
     # Si el backend no està configurat, avisem amb un error clar.
-    if not (SMTP_USER and SMTP_PASSWORD):
+    if not (SMTP_USER and SMTP_PASSWORD) and not LOCAL_DRY_RUN:
         return (
             jsonify(
                 {
@@ -215,6 +221,7 @@ def contact() -> tuple:
         "email": (form.get("email") or "").strip(),
         "telefon": (form.get("telefon") or "").strip(),
         "missatge": (form.get("missatge") or "").strip(),
+        "idioma": "castellà" if form.get("idioma") == "es" else "català",
     }
 
     errors = []
@@ -244,7 +251,10 @@ def contact() -> tuple:
     # Construcció i enviament del correu.
     try:
         message = _build_message(data)
-        _send_email(message)
+        if LOCAL_DRY_RUN:
+            print(message, flush=True)
+        else:
+            _send_email(message)
     except (smtplib.SMTPException, OSError):
         return (
             jsonify(
@@ -261,6 +271,26 @@ def contact() -> tuple:
     return jsonify({"ok": True}), 200
 
 
+def _serve_local_static(path: str = ""):
+    """Serveix l'estàtic en local imitant nginx (index i URLs sense extensió)."""
+    root = os.path.dirname(os.path.abspath(__file__))
+    if path.split("/")[0] in {"credentials", "assets-src", ".git"}:
+        abort(404)
+    candidates = [path, f"{path}.html", os.path.join(path, "index.html")]
+    for candidate in candidates:
+        full_path = os.path.join(root, candidate)
+        if candidate and os.path.isfile(full_path):
+            return send_from_directory(root, candidate)
+    return send_from_directory(root, "index.html")
+
+
 if __name__ == "__main__":
-    # Execució local per a proves (en producció s'usa gunicorn).
-    app.run(host="127.0.0.1", port=8000, debug=False)
+    # Execució local (en producció s'usa gunicorn darrere d'nginx): serveix també
+    # la web, usa el secret de prova de Turnstile i, sense SMTP, no envia correus.
+    TURNSTILE_SECRET = TURNSTILE_SECRET or TURNSTILE_TEST_SECRET
+    LOCAL_DRY_RUN = not (SMTP_USER and SMTP_PASSWORD)
+    app.add_url_rule("/", "local_index", _serve_local_static)
+    app.add_url_rule("/<path:path>", "local_static", _serve_local_static)
+    local_port = int(os.environ.get("PORT", "8080"))
+    print(f"Web local a http://127.0.0.1:{local_port}/", flush=True)
+    app.run(host="127.0.0.1", port=local_port, debug=False)

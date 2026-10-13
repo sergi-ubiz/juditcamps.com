@@ -7,7 +7,7 @@ HTML_DIR="/usr/share/nginx/html"
 # Injecta la clau pública de Turnstile a l'HTML si està configurada.
 # (La sitekey és pública; el secret viu només al backend.)
 if [ -n "$TURNSTILE_SITE_KEY" ]; then
-    sed -i "s|TURNSTILE_SITE_KEY|$TURNSTILE_SITE_KEY|g" "$HTML_DIR/index.html"
+    sed -i "s|TURNSTILE_SITE_KEY|$TURNSTILE_SITE_KEY|g" "$HTML_DIR/index.html" "$HTML_DIR/es/index.html"
 fi
 
 # Backend Flask via gunicorn, escoltant en local; nginx hi fa de proxy.

@@ -24,12 +24,18 @@ _headers            Capçaleres de seguretat (Netlify/Cloudflare Pages)
 
 ## Execució en local
 
-No cal cap build. Només un servidor estàtic:
+No cal cap build. El backend serveix també la web i permet provar el formulari:
 
 ```bash
-python3 -m http.server 8080
-# http://localhost:8080
+pip install -r requirements.txt
+python3 app.py
+# http://127.0.0.1:8080
 ```
+
+En local s'usen les claus de prova de Cloudflare Turnstile (sempre validen) i,
+si no hi ha `SMTP_USER`/`SMTP_PASSWORD`, el correu es mostra per consola en lloc
+d'enviar-se. Amb `python3 -m http.server` el formulari no funciona (no hi ha
+`/api/contact`).
 
 ## Configuració pendent abans de publicar
 
