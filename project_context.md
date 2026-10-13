@@ -218,13 +218,14 @@ vista). Adreça encara visible.
 ## 13. Pendent / pròxims passos
 
 0. **Dades legals** (revisió legal del 13/10): ✅ NIF 47792007P i col·legiada
-   CoDiNuCat núm. CAT000088 ja posats. Pendent de confirmar amb la Judit:
-   número del Peu Peu (la web diu Ctra. de Balenyà 33, el seu LinkedIn diu 28),
-   si encara passa consulta al Centre Mèdic Vic (afegit al CV des del LinkedIn)
-   i si cal publicar el número de registre sanitari del centre.
+   CoDiNuCat núm. CAT000088 ja posats (format oficial CAT + 6 xifres; la
+   signatura del seu correu diu CAT00088). Adreça Ctra. de Balenyà 33 confirmada.
+   Ja no treballa al Centre Mèdic Vic ni a FORMANutricional: no es mencionen, ni
+   Duo Professionals ni el perfil emprenedor/inversió (decisió 13/10).
+   Pendent: si cal publicar el número de registre sanitari del centre.
    CV ampliat: professora de Dietoteràpia I al grau de NHiD de la UVic (des del
    curs 2025-26, font: correu de proposta docent i uvic.cat/assignatura/4761),
-   tutora de pràctiques, FORMANutricional, curs de nutrició esportiva (UB).
+   tutora de pràctiques, curs de nutrició esportiva (UB).
    Canvis fets: fonts allotjades localment (sense Google Fonts), Turnstile es
    carrega només en interactuar amb el formulari, informació de primera capa
    RGPD al formulari, consentiment explícit (art. 9.2.a) per a dades de salut,
