@@ -6,13 +6,24 @@
     <title>Política de cookies · Judit Camps</title>
     <meta name="robots" content="noindex, follow">
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="site-header">
-    <nav class="nav container"><a href="index.html" class="brand">
-        <img src="assets/logo.png" alt="Judit Camps" width="260" height="57"></a></nav>
+<header class="site-header" id="top">
+    <nav class="nav container" aria-label="Navegació principal">
+        <a href="index.html" class="brand">
+            <img src="assets/logo.png" alt="Judit Camps, dietètica i nutrició" width="260" height="57">
+        </a>
+        <button class="nav-toggle" aria-label="Obre el menú" aria-expanded="false">☰</button>
+        <ul class="nav-links">
+            <li><a href="index.html#filosofia">Filosofia</a></li>
+            <li><a href="index.html#qui-soc">Qui sóc</a></li>
+            <li><a href="index.html#serveis">Serveis</a></li>
+            <li><a href="index.html#metode">Mètode</a></li>
+            <li><a href="index.html#contacte" class="btn btn-small">Reserva cita</a></li>
+        </ul>
+    </nav>
 </header>
 <main class="section"><div class="container narrow">
     <h1>Política de cookies</h1>
@@ -26,5 +37,19 @@
     qualsevol moment.</p>
     <p><a href="index.html">← Tornar a l'inici</a></p>
 </div></main>
+
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <img src="assets/logo-badge.png" alt="" width="120" height="124">
+        <nav aria-label="Enllaços legals">
+            <a href="avis-legal.html">Avís legal</a> ·
+            <a href="privadesa.html">Política de privadesa</a> ·
+            <a href="cookies.html">Política de cookies</a>
+        </nav>
+        <p>© <span id="year">2026</span> Judit Camps Pujolar · Taradell, Osona</p>
+    </div>
+</footer>
+
+<script src="js/main.js"></script>
 </body>
 </html>
