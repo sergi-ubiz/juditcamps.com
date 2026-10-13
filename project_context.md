@@ -6,30 +6,29 @@ actual, decisions i pendents, perquè qualsevol persona o IA (inclosos diversos
 xats en paral·lel) hi continuï sense trepitjar-se.
 
 - Data de creació: 12 d'octubre de 2026.
-- Última actualització: 12 d'octubre de 2026 (nit).
+- Última actualització: 13 d'octubre de 2026 (matinada).
 
 ---
 
 ## 0. ESTAT ACTUAL (llegeix-me primer)
 
-- **Web en viu a Cloud Run** (projecte `ultrabiz-admin`, regió `europe-west1`):
-  - Servei `juditcamps`, revisió en producció `juditcamps-00003`.
-  - URL provisional: https://juditcamps-588935605619.europe-west1.run.app
-  - Contingut estàtic OK; `/api/health` respon 200.
+- ✅ **WEB EN VIU AL DOMINI PROPI: https://juditcamps.com** (HTTP 200, TLS vàlid).
+  - `www.juditcamps.com` → 301 a l'arrel; `http://` → 302 a `https://`.
+  - Cloud Run (projecte `ultrabiz-admin`, regió `europe-west1`), servei
+    `juditcamps`, revisió `juditcamps-00004`.
+  - URL interna: https://juditcamps-588935605619.europe-west1.run.app
+  - `/api/health` respon 200 (`smtp_configured:false`, `turnstile_configured:false`).
 - **Identitat visual oficial aplicada** (logos reals de la Judit, paleta taupe +
   menta, tipografia Quicksand). Vegeu §3.
+- ✅ **Domini connectat**: DNS a Dyn configurat (4 A + www CNAME), propietat
+  verificada (`sergi@ultra-biz.net` és owner) i `domain-mappings` creats per
+  arrel i `www`. Certificat TLS gestionat emès. Vegeu §7.
 - **Formulari propi muntat** (backend Flask a Cloud Run), però **NO operatiu**
   fins que s'injectin 3 secrets (Turnstile + SMTP). Vegeu §6 i §9.
-- **Domini `juditcamps.com` encara NO connectat**: pendent que s'afegeixin els
-  registres DNS a Dyn i després verificar + mapar. Vegeu §7.
-- ⚠️ **DOS XATS han treballat en paral·lel** sobre el mateix repo i servei
-  (han muntat el mateix backend i un ha tret telèfon/correu de la web). Cal que
-  **un sol xat remati** per no duplicar desplegaments. Vegeu §10.
 
 ### Blocadors (requereixen acció humana)
-1. Afegir registres DNS a Dyn (TXT + A/AAAA + www CNAME) — §7.
-2. Proporcionar secrets del formulari (Turnstile SITE+SECRET, SMTP_USER+
-   SMTP_PASSWORD, CONTACT_TO) — §9.
+1. Proporcionar secrets del formulari (Turnstile SITE+SECRET, SMTP_USER+
+   SMTP_PASSWORD, CONTACT_TO) — §9. **És l'únic pendent perquè tot funcioni.**
 
 ---
 
@@ -140,22 +139,26 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
 - **Canònic = arrel `juditcamps.com`** (sense www). Unificat a HTML, `sitemap.xml`,
   `robots.txt`, `llms.txt`. `www` redirigeix a l'arrel (a nginx).
 
-### Registres a afegir a Dyn (pendents de propagar-se)
-| Tipus | Nom | Valor |
-|-------|-----|-------|
-| TXT | `@` | `google-site-verification=6137Zbe2AzG19FrPPuhCnvr0Ksvhda_2mAqnK-gJR2w` |
-| A | `@` | `216.239.32.21`, `216.239.34.21`, `216.239.36.21`, `216.239.38.21` |
-| AAAA | `@` | `2001:4860:4802:32::15`, `…:34::15`, `…:36::15`, `…:38::15` |
-| CNAME | `www` | `ghs.googlehosted.com.` (substitueix `parked.everydns.net`) |
+### Registres DNS a Dyn (✅ FETS el 13/10/2026)
+| Tipus | Nom | Valor | Estat |
+|-------|-----|-------|-------|
+| TXT | `@` | `google-site-verification=6137Zbe2AzG19FrPPuhCnvr0Ksvhda_2mAqnK-gJR2w` | ✅ afegit i propagat |
+| A | `@` | `216.239.32.21`, `216.239.34.21`, `216.239.36.21`, `216.239.38.21` | ✅ afegits i propagats |
+| CNAME | `www` | `ghs.googlehosted.com.` | ✅ canviat (abans `parked.everydns.net`) |
 
-Mantenir el TXT `google-site-verification=ewM1e5CS-…` existent i tots els MX.
+- ⚠️ **AAAA (IPv6) NO afegits**: el producte "Dyn Standard DNS" només admet
+  IPv4 al formulari d'hostnames (rebutja IPv6). La web és accessible per IPv4
+  (99% dels clients). Si es vol IPv6 complet, cal moure el DNS a Cloud DNS.
+- Mantinguts el TXT `google-site-verification=ewM1e5CS-…` existent i tots els MX.
+- Accés fet via portal web `account.dyn.com` (usuari `skubix`). ⚠️ La contrasenya
+  es va compartir al xat; recomanat canviar-la.
 
-### Passos un cop el DNS estigui propagat
-1. Verificar propietat (API siteVerification, ja amb scope a l'ADC) o
-   `gcloud domains verify juditcamps.com`.
-2. `gcloud beta run domain-mappings create --service juditcamps
-   --domain juditcamps.com --region europe-west1 --project ultrabiz-admin`.
-3. Cloud Run emet el certificat TLS gestionat automàticament.
+### Passos ja completats (13/10/2026)
+1. ✅ Propietat verificada via API siteVerification (owner `sergi@ultra-biz.net`).
+2. ✅ `gcloud beta run domain-mappings create` per `juditcamps.com` i
+   `www.juditcamps.com` (regió `europe-west1`, projecte `ultrabiz-admin`).
+3. ✅ Cloud Run ha emès el certificat TLS gestionat; `https://juditcamps.com`
+   serveix correctament.
 
 ## 8. SEO + visibilitat en IA (AI SEO / GEO)
 
@@ -210,9 +213,11 @@ vista). Adreça encara visible.
 
 ## 13. Pendent / pròxims passos
 
-1. **Secrets del formulari** (§9) → desar a Secret Manager + redeploy.
-2. **DNS a Dyn** (§7) → verificar propietat + `domain-mappings create`.
+1. **Secrets del formulari** (§9) → desar a Secret Manager + redeploy. **Únic
+   pendent crític** perquè el formulari de contacte funcioni.
+2. ✅ ~~DNS a Dyn + domain mapping~~ — FET (§7). `https://juditcamps.com` en viu.
 3. Opcional: esborrar `_headers` (codi mort a Cloud Run).
 4. Opcional: og-image amb foto professional de la Judit.
 5. Opcional: recuperar la botiga de l'ebook "12 mesos, 12 canvis" i la reserva
    de cita online (no migrades de la web antiga).
+6. Opcional: moure DNS a Cloud DNS si es vol IPv6 (AAAA) complet.
