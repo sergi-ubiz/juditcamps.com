@@ -66,7 +66,14 @@
             sending: "Enviant…",
             sent: "Missatge enviat. Et respondré tan aviat com pugui!",
             failed: "No s'ha pogut enviar. Torna-ho a provar d'aquí a uns minuts.",
-            network: "Error de connexió. Torna-ho a provar més tard."
+            network: "Error de connexió. Torna-ho a provar més tard.",
+            captchaFailed: "La verificació de seguretat ha caducat. Torna-la a fer i " +
+                "envia de nou.",
+            unavailable: "Ara mateix el formulari no està disponible. Escriu-me a " +
+                "info@juditcamps.com.",
+            tooMany: "Has enviat massa sol·licituds. Torna-ho a provar més tard.",
+            noBackend: "Aquest servidor local no té backend: arrenca'l amb " +
+                "«python3 app.py»."
         },
         es: {
             captchaLoad: "No se ha podido cargar la verificación de seguridad.",
@@ -74,7 +81,15 @@
             sending: "Enviando…",
             sent: "Mensaje enviado. ¡Te responderé lo antes posible!",
             failed: "No se ha podido enviar. Vuelve a intentarlo en unos minutos.",
-            network: "Error de conexión. Vuelve a intentarlo más tarde."
+            network: "Error de conexión. Vuelve a intentarlo más tarde.",
+            captchaFailed: "La verificación de seguridad ha caducado. Vuelve a " +
+                "hacerla y envía de nuevo.",
+            unavailable: "Ahora mismo el formulario no está disponible. Escríbeme a " +
+                "info@juditcamps.com.",
+            tooMany: "Has enviado demasiadas solicitudes. Vuelve a intentarlo más " +
+                "tarde.",
+            noBackend: "Este servidor local no tiene backend: arráncalo con " +
+                "«python3 app.py»."
         }
     };
     var text = messages[document.documentElement.lang] || messages.ca;
@@ -124,6 +139,7 @@
         /* Captcha Turnstile obligatori */
         var tokenInput = form.querySelector('input[name="cf-turnstile-response"]');
         if (!tokenInput || !tokenInput.value) {
+            loadTurnstile();
             setStatus(text.captchaMissing, true);
             return;
         }
@@ -140,10 +156,9 @@
             .then(function (res) {
                 if (res.ok) {
                     form.reset();
-                    if (window.turnstile) window.turnstile.reset();
                     setStatus(text.sent, false);
                 } else {
-                    setStatus(text.failed, true);
+                    setStatus(errorMessageFor(res.status), true);
                 }
             })
             .catch(function () {
@@ -151,8 +166,18 @@
             })
             .finally(function () {
                 btn.disabled = false;
+                /* Cada token de Turnstile només es pot validar una vegada */
+                if (window.turnstile) window.turnstile.reset();
             });
     });
+
+    function errorMessageFor(status) {
+        if (status === 400) return text.captchaFailed;
+        if (status === 429) return text.tooMany;
+        if (status === 503) return text.unavailable;
+        if (status === 404 || status === 405 || status === 501) return text.noBackend;
+        return text.failed;
+    }
 
     function setStatus(msg, isError) {
         if (!statusEl) return;

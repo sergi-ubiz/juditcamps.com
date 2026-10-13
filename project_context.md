@@ -86,7 +86,7 @@ gunicorn/Flask**:
   fa de **proxy de `/api/`** cap a `127.0.0.1:8000`, i **redirigeix
   `www.juditcamps.com` → `juditcamps.com`** (301).
   - ⚠️ CSS/JS es guarden 30 dies al navegador: **cada cop que es canviï
-    `css/style.css` o `js/main.js`, cal pujar el `?v=AAAAMMDD`** dels enllaços a
+    `css/style.css` o `js/main.js`, cal pujar el `?v=AAAAMMDDNN`** dels enllaços a
     tots els HTML (ca i `es/`). Sense això, qui ja havia visitat la web rep el JS
     antic (el 13/10 va trencar el captcha).
 - `entrypoint.sh`: injecta `TURNSTILE_SITE_KEY` a l'HTML (si està a l'entorn),
