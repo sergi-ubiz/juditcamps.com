@@ -232,17 +232,20 @@ tocar res del compte `ferranxx@gmail.com` (propietari del compte Dyn "skubix").
   - **ultra-biz.net** (16 registres): A `@` 80.31.93.204, CNAME `www` →
     ultra-biz.net, CNAME `admin` → ghs.googlehosted.com, 7 MX Google
     (prioritats 10–70), TXT `google-site-verification=nl3NFPF…`. Llesta.
-  - ⚠️ **juditcamps.com: zona DESFASADA.** Es va carregar el 12/10 per a GitHub
-    Pages (4 A `185.199.108–111.153`, CNAME `www` → `sergi-ubiz.github.io`).
-    Ara la web és a Cloud Run: **abans de canviar nameservers** cal substituir-ho
-    per les 4 A `216.239.32/34/36/38.21`, CNAME `www` → `ghs.googlehosted.com.`
-    i afegir el TXT `google-site-verification=6137Zbe2…` (domain mapping). Els
-    7 MX i el TXT `ewM1e5CS…` ja hi són.
+  - **juditcamps.com** (corregida el 14/10): 4 A `216.239.32/34/36/38.21`
+    (Cloud Run), CNAME `www` → `ghs.googlehosted.com.`, 7 MX Google, TXT
+    `google-site-verification=6137Zbe2…` i `ewM1e5CS…`. Llesta.
+  - 14/10: esborrat de **totes dues** zones el `_dmarc` que GoDaddy afegeix per
+    defecte (`p=quarantine`, rua a onsecureserver.net). Sense SPF/DKIM hauria
+    enviat el correu sortint a spam. Dyn no en té; si es vol DMARC, veure §7.
+  - Comparació registre a registre (`dig` Dyn vs `@ns09.domaincontrol.com`,
+    14/10): idèntiques tots dos dominis (només difereix majúscules als MX).
 - Editor de registres: `dcc.godaddy.com/control/portfolio/<domini>/settings?tab=dns`.
 - Còpies de seguretat de les zones de Dyn: `assets-src/dyn-zones-backup-20261012.txt`
   i `assets-src/juditcamps.com-zone-backup-20261012.txt` (fora del repo).
-- Quan acabi la transferència: corregir la zona de juditcamps.com, canviar els
-  nameservers a ns09/ns10 i verificar amb `dig` web + MX abans de donar-ho per bo.
+- Quan acabi la transferència: tornar a comparar les zones amb Dyn (per si s'hi
+  ha canviat res), canviar els nameservers a ns09/ns10 i verificar amb `dig`
+  web + MX abans de donar-ho per bo.
 
 ## 8. SEO + visibilitat en IA (AI SEO / GEO)
 
@@ -382,8 +385,8 @@ STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
 9. Afegir SPF + DMARC i activar DKIM al Workspace (§7, pendent de confirmar).
    Recomanat abans d'activar el formulari.
 10. **Transferència GoDaddy** (§7b): vigilar fins al ~19/10; quan acabi,
-    corregir la zona de juditcamps.com a GoDaddy (Cloud Run, no GitHub Pages)
-    i després canviar nameservers de tots dos dominis a ns09/ns10.
+    canviar nameservers de tots dos dominis a ns09/ns10 (zones ja llestes i
+    verificades el 14/10).
 11. La Judit no recorda la contrasenya d'`info@juditcamps.com`: cal que
     l'administrador del Workspace la restableixi per poder generar l'App
     Password (desbloqueja el punt 1).
