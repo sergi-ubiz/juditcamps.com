@@ -37,6 +37,10 @@ xats en paral·lel) hi continuï sense trepitjar-se.
   (15 proves, nginx + gunicorn, navegador). Producció en viu encara és la
   revisió anterior, sense recollida. Vegeu §12b.
 
+- 🟡 **Transferència de registrador a GoDaddy en curs** (juditcamps.com i
+  ultra-biz.net, prevista 19/10). ⚠️ Abans de canviar nameservers cal corregir
+  la zona pre-carregada de juditcamps.com a GoDaddy. Vegeu §7b.
+
 ### Blocadors (requereixen acció humana)
 1. **App Password de Google per a `info@juditcamps.com`** (SMTP_USER +
    SMTP_PASSWORD) — §9. Necessari perquè el formulari enviï correus.
@@ -207,6 +211,39 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
   `6137Zbe2…` o els A/CNAME, cau la web. Una transferència de registrador que
   manté els nameservers de Dyn no afecta res.
 
+## 7b. Transferència de registrador a GoDaddy (EN CURS)
+
+Objectiu: consolidar `juditcamps.com` i `ultra-biz.net` al compte GoDaddy
+d'Ultrabiz (client 277226103), **sense cap tall de correu**. Restricció: no
+tocar res del compte `ferranxx@gmail.com` (propietari del compte Dyn "skubix").
+`restaurantauro.com` es deixa caducar a Sys4Net (decisió).
+
+- 12/10/2026: tots dos dominis desbloquejats a Sys4Net (panell netlan), codis
+  EPP introduïts a GoDaddy i transferència pagada (1 any cadascuna, factura
+  ULTRABIZ SLU). Estat a `dcc.godaddy.com/control/transfers`: **"En curso"**,
+  iniciada 12/10, prevista per al **19/10/2026** (pot arribar abans si
+  Registrar.eu l'aprova).
+- La transferència **no toca els nameservers**: el DNS continua a Dyn i tot
+  (web + correu) funciona igual durant i després de la transferència.
+- Zones pre-carregades a GoDaddy DNS hosting (nameservers assignats
+  **`ns09.domaincontrol.com` / `ns10.domaincontrol.com`**), verificades amb
+  `dig @ns09.domaincontrol.com`: MX i TXT idèntics a Dyn. Les zones DNS hosting
+  sense producte associat s'esborren als 30 dies (la transferència acaba abans).
+  - **ultra-biz.net** (16 registres): A `@` 80.31.93.204, CNAME `www` →
+    ultra-biz.net, CNAME `admin` → ghs.googlehosted.com, 7 MX Google
+    (prioritats 10–70), TXT `google-site-verification=nl3NFPF…`. Llesta.
+  - ⚠️ **juditcamps.com: zona DESFASADA.** Es va carregar el 12/10 per a GitHub
+    Pages (4 A `185.199.108–111.153`, CNAME `www` → `sergi-ubiz.github.io`).
+    Ara la web és a Cloud Run: **abans de canviar nameservers** cal substituir-ho
+    per les 4 A `216.239.32/34/36/38.21`, CNAME `www` → `ghs.googlehosted.com.`
+    i afegir el TXT `google-site-verification=6137Zbe2…` (domain mapping). Els
+    7 MX i el TXT `ewM1e5CS…` ja hi són.
+- Editor de registres: `dcc.godaddy.com/control/portfolio/<domini>/settings?tab=dns`.
+- Còpies de seguretat de les zones de Dyn: `assets-src/dyn-zones-backup-20261012.txt`
+  i `assets-src/juditcamps.com-zone-backup-20261012.txt` (fora del repo).
+- Quan acabi la transferència: corregir la zona de juditcamps.com, canviar els
+  nameservers a ns09/ns10 i verificar amb `dig` web + MX abans de donar-ho per bo.
+
 ## 8. SEO + visibilitat en IA (AI SEO / GEO)
 
 - **JSON-LD schema.org** a `index.html`: `MedicalBusiness` + `Person` niuat.
@@ -221,7 +258,12 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
 Cal proporcionar-los; després es desen a **Secret Manager** / variables d'entorn
 de Cloud Run i es redesplega. `app.py` els llegeix de l'entorn:
 
-1. ✅ **Turnstile**: `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET` configurats.
+1. ✅ **Turnstile** (13/10): widget al compte Cloudflare d'Ultrabiz. Site key
+   pública `0x4AAAAAAFVTt0n_d6bNRS3v` (env `TURNSTILE_SITE_KEY`, l'injecta
+   `entrypoint.sh` a `index.html` i `es/index.html`). Secret a Secret Manager
+   **`juditcamps-turnstile-secret`** (`ultrabiz-admin`) → env `TURNSTILE_SECRET`
+   (accés `secretAccessor` per al compte de servei de Cloud Run).
+   `CONTACT_TO=info@juditcamps.com` ja definit a Cloud Run.
 2. ⏳ **SMTP Workspace**: `SMTP_USER` (p. ex. `info@juditcamps.com`) +
    `SMTP_PASSWORD` (**App Password**, requereix 2FA a la bústia). Opcional
    `SMTP_HOST`/`SMTP_PORT` (per defecte `smtp.gmail.com:587`).
@@ -339,3 +381,9 @@ STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
    cada redeploy).
 9. Afegir SPF + DMARC i activar DKIM al Workspace (§7, pendent de confirmar).
    Recomanat abans d'activar el formulari.
+10. **Transferència GoDaddy** (§7b): vigilar fins al ~19/10; quan acabi,
+    corregir la zona de juditcamps.com a GoDaddy (Cloud Run, no GitHub Pages)
+    i després canviar nameservers de tots dos dominis a ns09/ns10.
+11. La Judit no recorda la contrasenya d'`info@juditcamps.com`: cal que
+    l'administrador del Workspace la restableixi per poder generar l'App
+    Password (desbloqueja el punt 1).
