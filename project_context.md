@@ -6,7 +6,8 @@ actual, decisions i pendents, perquè qualsevol persona o IA (inclosos diversos
 xats en paral·lel) hi continuï sense trepitjar-se.
 
 - Data de creació: 12 d'octubre de 2026.
-- Última actualització: 14 d'octubre de 2026 (analítica d'audiències pròpia).
+- Última actualització: 14 d'octubre de 2026 (analítica d'audiències pròpia;
+  transferència de domini a GoDaddy, versió castellana, logo `es`, Turnstile).
 
 ---
 
@@ -15,24 +16,30 @@ xats en paral·lel) hi continuï sense trepitjar-se.
 - ✅ **WEB EN VIU AL DOMINI PROPI: https://juditcamps.com** (HTTP 200, TLS vàlid).
   - `www.juditcamps.com` → 301 a l'arrel; `http://` → 302 a `https://`.
   - Cloud Run (projecte `ultrabiz-admin`, regió `europe-west1`), servei
-    `juditcamps`, revisió `juditcamps-00004`.
+    `juditcamps`, revisió **`juditcamps-00009-t8z`** (13/10, commit `eec781b`).
   - URL interna: https://juditcamps-588935605619.europe-west1.run.app
-  - `/api/health` respon 200 (`smtp_configured:false`, `turnstile_configured:false`).
+  - `/api/health` respon 200 (`smtp_configured:false`, `turnstile_configured:true`).
+- ✅ **Revisió legal RGPD / LOPDGDD / LSSI feta** (13/10): avís legal, privadesa i
+  cookies (ca/es), NIF, núm. de col·legiada, consentiment de dades de salut.
+- ✅ **Captcha (Turnstile) operatiu a producció**. Es carrega en interactuar
+  amb el formulari i es reinicia després de cada enviament.
 - **Identitat visual oficial aplicada** (logos reals de la Judit, paleta taupe +
   menta, tipografia Quicksand). Vegeu §3.
 - ✅ **Domini connectat**: DNS a Dyn configurat (4 A + www CNAME), propietat
   verificada (`sergi@ultra-biz.net` és owner) i `domain-mappings` creats per
   arrel i `www`. Certificat TLS gestionat emès. Vegeu §7.
-- **Formulari propi muntat** (backend Flask a Cloud Run), però **NO operatiu**
-  fins que s'injectin 3 secrets (Turnstile + SMTP). Vegeu §6 i §9.
+- 🟡 **Formulari: NO envia correus** fins que es configuri l'SMTP (§9).
+  Mentrestant `/api/contact` respon 503 i el visitant veu un missatge que el
+  convida a escriure a `info@juditcamps.com` (també visible a la secció de
+  contacte).
 - 🟡 **Analítica d'audiències pròpia FETA i commitejada, però NO desplegada**
   (sense cookies, tauler privat a `/stats/<STATS_TOKEN>/`). Provada en local
   (15 proves, nginx + gunicorn, navegador). Producció en viu encara és la
   revisió anterior, sense recollida. Vegeu §12b.
 
 ### Blocadors (requereixen acció humana)
-1. Proporcionar secrets del formulari (Turnstile SITE+SECRET, SMTP_USER+
-   SMTP_PASSWORD, CONTACT_TO) — §9. Necessari perquè el formulari funcioni.
+1. **App Password de Google per a `info@juditcamps.com`** (SMTP_USER +
+   SMTP_PASSWORD) — §9. Necessari perquè el formulari enviï correus.
 2. `gcloud auth login` (el token de `sergi@ultra-biz.net` havia caducat el
    13/10) per poder crear Firestore i desplegar l'analítica — §12b.
 
@@ -51,7 +58,7 @@ clàssics com a assistents d'IA (ChatGPT, Claude, Perplexity…).
   Wayback Machine** (snapshots de 2021). Tot el contingut real s'ha recuperat
   d'allà. **No hi ha contingut inventat.** Còpies dels HTML originals a
   `assets-src/` (no es puja al repo).
-- Idioma: **català** (públic d'Osona).
+- Idioma: **català** (principal, públic d'Osona) + **castellà** a `/es/` (§12c).
 
 ## 3. Identitat visual (ACTUALITZADA 12/10/2026)
 
@@ -83,7 +90,10 @@ S'han adaptat a la web:
 ### Stack
 - Web **estàtica** (HTML + CSS + JS vanilla, sense build ni npm) + un **backend
   mínim** només per al formulari.
-- Execució local de l'estàtic: `python3 -m http.server 8080`.
+- Execució local: **`python3 app.py`** → http://127.0.0.1:8080 (serveix
+  l'estàtic + `/api/`, claus de prova de Turnstile i mode *dry-run*: el correu
+  s'imprimeix a la consola en lloc d'enviar-se). ⚠️ `python3 -m http.server`
+  no té backend: el captcha no es pinta i el formulari falla.
 
 ### Contenidor (Cloud Run)
 Un sol contenidor (`Dockerfile`, base `python:3.12-slim`) amb **nginx +
@@ -123,12 +133,22 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
   - Defenses: honeypot, rate-limit en memòria (5/h per IP), validació estricta.
 - `GET /api/health`: retorna estat i si Turnstile/SMTP estan configurats.
 - Captcha: **Cloudflare Turnstile** (privadesa, sense puzzles). La `site key`
-  (pública) s'injecta a l'HTML al desplegament; el `secret` viu al backend.
+  (pública, `0x4AAAAAAFVTt0n_d6bNRS3v`) l'injecta `entrypoint.sh` a
+  `index.html` i `es/index.html`; el `secret` és a Secret Manager.
+  - Render explícit i càrrega mandrosa (focus/clic al formulari, o en enviar
+    sense token): cap visitant que no l'usi no contacta Cloudflare.
+  - **Cada token és d'un sol ús**: `turnstile.reset()` després de cada resposta.
+  - Missatges per estat HTTP: 400 captcha, 429 límit, 503 servei no disponible
+    (SMTP), 404/405/501 sense backend.
+- Consentiment: checkbox únic (privadesa + dades de salut art. 9.2.a RGPD +
+  ≥14 anys o tutor). El correu inclou la versió de la política
+  (`PRIVACY_POLICY_VERSION`) i el termini de conservació (12 mesos).
 
 ## 6. Seguretat
 
 - **CSP** (meta a `index.html` i capçalera a `nginx.conf`, coherents):
-  `default-src 'self'` + Turnstile (script/frame) + Google Fonts +
+  `default-src 'self'` + Turnstile (script/frame) + `font-src 'self'` (fonts
+  Inter i Quicksand allotjades a `assets/fonts/`, sense Google Fonts) +
   `connect-src 'self'` + `form-action 'self'` + `object-src 'none'` +
   `base-uri 'self'`.
 - Capçaleres: HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options`,
@@ -170,6 +190,23 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
 3. ✅ Cloud Run ha emès el certificat TLS gestionat; `https://juditcamps.com`
    serveix correctament.
 
+### Correu verificat després dels canvis DNS (13/10/2026)
+- ✅ Els 7 MX de Google Workspace són intactes (comprovat contra el nameserver
+  autoritatiu `ns1175.dns.dyn.com`): `ASPMX.L.GOOGLE.COM` (1), `ALT1/ALT2` (5),
+  `ASPMX2-5.GOOGLEMAIL.COM` (10). El correu entrant funciona igual que abans.
+- ⚠️ **Ja abans dels canvis, el domini no tenia SPF, DMARC ni DKIM.** No afecta la
+  recepció, però sí l'entregabilitat del correu sortint (inclosos els avisos del
+  formulari enviats com a `info@juditcamps.com`). Proposta pendent de confirmar:
+  - SPF a `@`: `v=spf1 include:_spf.google.com ~all`
+  - DMARC a `_dmarc`: `v=DMARC1; p=none; rua=mailto:info@juditcamps.com`
+  - DKIM: activar-lo a admin.google.com (cal accés d'administrador del Workspace).
+- ⚠️ **Si el domini es transfereix (p. ex. a GoDaddy) i el DNS deixa Dyn**: abans
+  de canviar els nameservers, recrear a la nova zona **tots** els registres: els
+  7 MX, els 2 TXT `google-site-verification`, els 4 A i el CNAME `www`. Si falten
+  els MX, el correu de `info@juditcamps.com` deixa de rebre's; si falta el TXT
+  `6137Zbe2…` o els A/CNAME, cau la web. Una transferència de registrador que
+  manté els nameservers de Dyn no afecta res.
+
 ## 8. SEO + visibilitat en IA (AI SEO / GEO)
 
 - **JSON-LD schema.org** a `index.html`: `MedicalBusiness` + `Person` niuat.
@@ -184,14 +221,13 @@ Decisió (12/10): **el servei és nostre**, no extern. Formspree eliminat.
 Cal proporcionar-los; després es desen a **Secret Manager** / variables d'entorn
 de Cloud Run i es redesplega. `app.py` els llegeix de l'entorn:
 
-1. **Turnstile** (Cloudflare, gratis): `TURNSTILE_SITE_KEY` (pública, s'injecta
-   a l'HTML) + `TURNSTILE_SECRET` (backend).
-2. **SMTP Workspace**: `SMTP_USER` (p. ex. `info@juditcamps.com`) +
+1. ✅ **Turnstile**: `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET` configurats.
+2. ⏳ **SMTP Workspace**: `SMTP_USER` (p. ex. `info@juditcamps.com`) +
    `SMTP_PASSWORD` (**App Password**, requereix 2FA a la bústia). Opcional
    `SMTP_HOST`/`SMTP_PORT` (per defecte `smtp.gmail.com:587`).
 3. **`CONTACT_TO`**: destinatari dels avisos (per defecte `info@juditcamps.com`).
 
-Mentre no hi siguin, `/api/contact` respon 503 i el captcha no es pinta.
+Mentre no hi sigui l'SMTP, `/api/contact` respon 503 (el captcha sí que es pinta).
 
 ## 10. Coordinació entre xats (IMPORTANT)
 
@@ -218,8 +254,13 @@ Seccions one-page: Hero ("L'alimentació és font de vida i salut") · Filosofia
 Qui sóc (bio real + 4 titulacions, +20 anys) · Serveis (salut digestiva [la seva
 especialitat], intoleràncies/al·lèrgies, etapes de la vida, salut metabòlica,
 objectius personals) · Mètode (4 passos) · Contacte (centre Peu Peu, Ctra. de
-Balenyà 33, Taradell — **ara només via formulari**, sense telèfon/correu a la
-vista). Adreça encara visible.
+Balenyà 33, Taradell; formulari + alternativa per correu a `info@juditcamps.com`,
+sense telèfon). Versió en castellà a `/es/` amb logo propi (`logo-es.png`).
+
+CV (decisions del 13/10): professora de Dietoteràpia I i tutora de pràctiques
+del grau de NHiD (UVic-UCC), +20 anys de consulta, especialitat digestiva.
+**No es mencionen**: Centre Mèdic Vic, FORMANutricional, Duo Professionals ni
+el perfil emprenedor/inversió.
 
 ## 12b. Analítica d'audiències pròpia (13/10/2026, vespre)
 
@@ -282,8 +323,8 @@ STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
    RGPD al formulari, consentiment explícit (art. 9.2.a) per a dades de salut,
    constància del consentiment al correu, i correu `info@juditcamps.com` publicat
    a les pàgines legals (exigit per l'art. 10 LSSI).
-1. **Secrets del formulari** (§9) → desar a Secret Manager + redeploy. **Únic
-   pendent crític** perquè el formulari de contacte funcioni.
+1. **App Password SMTP** (§9) → desar a Secret Manager + redeploy. **Únic
+   pendent crític** perquè el formulari de contacte enviï correus.
 2. ✅ ~~DNS a Dyn + domain mapping~~ — FET (§7). `https://juditcamps.com` en viu.
 3. Opcional: esborrar `_headers` (codi mort a Cloud Run).
 4. Opcional: og-image amb foto professional de la Judit.
@@ -296,3 +337,5 @@ STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
    privat del tauler a la Judit.
 8. Opcional: refrescar la base GeoIP (DB-IP publica cada mes; es renova sola a
    cada redeploy).
+9. Afegir SPF + DMARC i activar DKIM al Workspace (§7, pendent de confirmar).
+   Recomanat abans d'activar el formulari.
