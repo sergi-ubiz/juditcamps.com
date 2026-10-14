@@ -5,9 +5,111 @@
  * - Enviament del formulari de contacte al backend propi (/api/contact)
  * - Turnstile es carrega només quan l'usuari interactua amb el formulari, perquè
  *   cap visitant que no l'utilitzi enviï dades a Cloudflare.
+ * - Mesura d'audiència pròpia i anònima (/api/pulse): sense cookies ni
+ *   emmagatzematge al dispositiu i sense tercers.
  */
 (function () {
     "use strict";
+
+    var analytics = createAnalytics();
+
+    /**
+     * Mesura anònima de visites, temps actiu, desplaçament i conversions.
+     * Respecta Global Privacy Control i permet excloure el propi navegador
+     * des del tauler privat (marca "jc-analytics-ignore" a localStorage).
+     * @returns {{conversion: function(string): void}}
+     */
+    function createAnalytics() {
+        var disabled = { conversion: function () {} };
+        try {
+            if (navigator.globalPrivacyControl) return disabled;
+            if (localStorage.getItem("jc-analytics-ignore") === "1") return disabled;
+        } catch (err) {
+            /* localStorage bloquejat: es continua mesurant igualment */
+        }
+
+        var endpoint = "/api/pulse";
+        var pageId = newId();
+        var engagedMs = 0;
+        var maxScroll = 0;
+        var visibleSince = document.visibilityState === "visible" ? Date.now() : 0;
+
+        function newId() {
+            var bytes = new Uint8Array(16);
+            (window.crypto || window.msCrypto).getRandomValues(bytes);
+            return Array.prototype.map.call(bytes, function (b) {
+                return ("0" + b.toString(16)).slice(-2);
+            }).join("");
+        }
+
+        function context(type, id) {
+            return {
+                t: type,
+                id: id,
+                u: location.pathname + location.search,
+                r: document.referrer,
+                l: document.documentElement.lang,
+                sw: window.screen ? screen.width : 0,
+                tp: navigator.maxTouchPoints || 0
+            };
+        }
+
+        function send(payload, atUnload) {
+            var body = JSON.stringify(payload);
+            try {
+                /* text/plain evita la petició prèvia CORS i funciona en tancar */
+                if (atUnload && navigator.sendBeacon) {
+                    navigator.sendBeacon(endpoint,
+                        new Blob([body], { type: "text/plain" }));
+                    return;
+                }
+                fetch(endpoint, {
+                    method: "POST",
+                    body: body,
+                    keepalive: true,
+                    headers: { "Content-Type": "text/plain" }
+                }).catch(function () {});
+            } catch (err) {
+                /* La mesura mai no ha d'interferir amb la navegació */
+            }
+        }
+
+        function trackScroll() {
+            var doc = document.documentElement;
+            var scrollable = doc.scrollHeight - window.innerHeight;
+            var pct = scrollable > 0 ?
+                Math.round((window.scrollY / scrollable) * 100) : 100;
+            if (pct > maxScroll) maxScroll = Math.min(pct, 100);
+        }
+
+        function flushEngagement() {
+            if (visibleSince) {
+                engagedMs += Date.now() - visibleSince;
+                visibleSince = 0;
+            }
+            send({ t: "engagement", id: pageId, e: engagedMs, s: maxScroll }, true);
+        }
+
+        send(context("pageview", pageId), false);
+        trackScroll();
+        window.addEventListener("scroll", trackScroll, { passive: true });
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "hidden") {
+                flushEngagement();
+            } else {
+                visibleSince = Date.now();
+            }
+        });
+        window.addEventListener("pagehide", flushEngagement);
+
+        return {
+            conversion: function (name) {
+                var payload = context("conversion", newId());
+                payload.n = name;
+                send(payload, false);
+            }
+        };
+    }
 
     /* Any actual al peu */
     var yearEl = document.getElementById("year");
@@ -157,6 +259,7 @@
                 if (res.ok) {
                     form.reset();
                     setStatus(text.sent, false);
+                    analytics.conversion("contact_submit");
                 } else {
                     setStatus(errorMessageFor(res.status), true);
                 }

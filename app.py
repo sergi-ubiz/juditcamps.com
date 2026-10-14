@@ -23,7 +23,18 @@ from email.utils import formataddr, parseaddr
 import requests
 from flask import Flask, abort, jsonify, request, send_from_directory
 
+from analytics import create_analytics_blueprint
+from analytics.enrich import build_geolocator_from_env
+from analytics.routes import AnalyticsConfig
+from analytics.store import build_store_from_env
+
 app = Flask(__name__)
+
+# Analítica d'audiències pròpia (sense cookies): recollida a /api/pulse i
+# tauler privat a /stats/<STATS_TOKEN>.
+app.register_blueprint(create_analytics_blueprint(
+    build_store_from_env(), build_geolocator_from_env(),
+    AnalyticsConfig.from_env()))
 
 # ---------------------------------------------------------------------------
 # Configuració (variables d'entorn)
@@ -274,7 +285,8 @@ def contact() -> tuple:
 def _serve_local_static(path: str = ""):
     """Serveix l'estàtic en local imitant nginx (index i URLs sense extensió)."""
     root = os.path.dirname(os.path.abspath(__file__))
-    if path.split("/")[0] in {"credentials", "assets-src", ".git"}:
+    hidden_dirs = {"credentials", "assets-src", ".git", "analytics", "geo"}
+    if path.split("/")[0] in hidden_dirs or path.endswith(".sqlite3"):
         abort(404)
     candidates = [path, f"{path}.html", os.path.join(path, "index.html")]
     for candidate in candidates:

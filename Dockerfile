@@ -12,8 +12,13 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# Geolocalització offline (DB-IP City Lite, CC BY 4.0), dins la imatge.
+COPY scripts/download_geoip.py /app/scripts/download_geoip.py
+RUN python /app/scripts/download_geoip.py /app/geo/dbip-city-lite.mmdb
+
 # Codi del backend
 COPY app.py /app/app.py
+COPY analytics /app/analytics
 
 # Configuració d'nginx i entrypoint
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -28,6 +33,10 @@ RUN rm -rf /usr/share/nginx/html/Dockerfile \
            /usr/share/nginx/html/nginx.conf \
            /usr/share/nginx/html/entrypoint.sh \
            /usr/share/nginx/html/app.py \
+           /usr/share/nginx/html/analytics \
+           /usr/share/nginx/html/scripts \
+           /usr/share/nginx/html/geo \
+           /usr/share/nginx/html/analytics-local.sqlite3 \
            /usr/share/nginx/html/requirements.txt \
            /usr/share/nginx/html/.dockerignore \
            /usr/share/nginx/html/.git \

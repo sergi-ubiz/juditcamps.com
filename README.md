@@ -37,6 +37,38 @@ si no hi ha `SMTP_USER`/`SMTP_PASSWORD`, el correu es mostra per consola en lloc
 d'enviar-se. Amb `python3 -m http.server` el formulari no funciona (no hi ha
 `/api/contact`).
 
+## Analítica d'audiències pròpia
+
+Mesura de visites sense cookies ni serveis de tercers (mòdul `analytics/`):
+
+- `js/main.js` envia a `POST /api/pulse` la visita, el temps actiu, el
+  desplaçament i les conversions (formulari enviat). Respecta Global Privacy
+  Control.
+- El servidor geolocalitza la IP amb la base local DB-IP City Lite
+  (`scripts/download_geoip.py`, s'inclou a la imatge) i la descarta; el visitant
+  s'identifica amb un hash anònim que rota cada dia.
+- Persistència: Firestore en producció (`ANALYTICS_BACKEND=firestore`), SQLite
+  en local (`analytics-local.sqlite3`).
+- **Tauler privat**: `https://juditcamps.com/stats/<STATS_TOKEN>/` (sense token
+  configurat respon 404). KPI amb comparació amb el període anterior, evolució,
+  canals, fonts, pàgines, ubicació, dispositius, campanyes UTM, mapa de calor i
+  exportació CSV. Clicant qualsevol fila es filtra tot el tauler.
+
+Variables d'entorn:
+
+| Variable | Ús |
+|----------|----|
+| `STATS_TOKEN` | Secret de l'enllaç privat del tauler (≥ 32 caràcters aleatoris) |
+| `ANALYTICS_SALT` | Secret del hash anònim de visitant |
+| `ANALYTICS_BACKEND` | `firestore` (producció) o `sqlite` (local, per defecte) |
+| `ANALYTICS_FIRESTORE_DB` | Base de dades Firestore (per defecte `juditcamps`) |
+
+En local: `STATS_TOKEN=prova123 python3 app.py` i obrir
+`http://127.0.0.1:8080/stats/prova123/`. Proves: `python -m pytest tests`.
+
+Per etiquetar campanyes: `https://juditcamps.com/?utm_source=instagram&utm_medium=social&utm_campaign=nom`
+(o `utm_medium=qr` per a fulletons i targetes).
+
 ## Configuració pendent abans de publicar
 
 1. **Formulari de contacte** — crear un formulari a [Formspree](https://formspree.io)

@@ -6,7 +6,7 @@ actual, decisions i pendents, perquè qualsevol persona o IA (inclosos diversos
 xats en paral·lel) hi continuï sense trepitjar-se.
 
 - Data de creació: 12 d'octubre de 2026.
-- Última actualització: 13 d'octubre de 2026 (matinada).
+- Última actualització: 14 d'octubre de 2026 (analítica d'audiències pròpia).
 
 ---
 
@@ -25,10 +25,16 @@ xats en paral·lel) hi continuï sense trepitjar-se.
   arrel i `www`. Certificat TLS gestionat emès. Vegeu §7.
 - **Formulari propi muntat** (backend Flask a Cloud Run), però **NO operatiu**
   fins que s'injectin 3 secrets (Turnstile + SMTP). Vegeu §6 i §9.
+- 🟡 **Analítica d'audiències pròpia FETA i commitejada, però NO desplegada**
+  (sense cookies, tauler privat a `/stats/<STATS_TOKEN>/`). Provada en local
+  (15 proves, nginx + gunicorn, navegador). Producció en viu encara és la
+  revisió anterior, sense recollida. Vegeu §12b.
 
 ### Blocadors (requereixen acció humana)
 1. Proporcionar secrets del formulari (Turnstile SITE+SECRET, SMTP_USER+
-   SMTP_PASSWORD, CONTACT_TO) — §9. **És l'únic pendent perquè tot funcioni.**
+   SMTP_PASSWORD, CONTACT_TO) — §9. Necessari perquè el formulari funcioni.
+2. `gcloud auth login` (el token de `sergi@ultra-biz.net` havia caducat el
+   13/10) per poder crear Firestore i desplegar l'analítica — §12b.
 
 ---
 
@@ -215,6 +221,51 @@ objectius personals) · Mètode (4 passos) · Contacte (centre Peu Peu, Ctra. de
 Balenyà 33, Taradell — **ara només via formulari**, sense telèfon/correu a la
 vista). Adreça encara visible.
 
+## 12b. Analítica d'audiències pròpia (13/10/2026, vespre)
+
+Decisió: **mesura pròpia, sense Google Analytics ni cap tercer, sense cookies**
+(no cal bàner de consentiment). Codi a `analytics/` (domain, enrich, store,
+report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
+
+- Recollida: `js/main.js` → `POST /api/pulse` (pageview, engagement en tancar la
+  pestanya, conversió `contact_submit` quan el formulari s'envia bé).
+- Visitant = HMAC(`ANALYTICS_SALT`, dia + IP + UA): rota cada dia, no es desa
+  la IP. Sessió = pausa > 30 min. Rebot = criteri GA4 (< 10 s, 1 pàgina, sense
+  conversió). Bots i Global Privacy Control exclosos.
+- Geolocalització offline DB-IP City Lite (CC BY 4.0, cal atribució: és al
+  tauler), descarregada al build (`scripts/download_geoip.py`, ~127 MB).
+- Producció: Firestore, base de dades **`juditcamps`**, col·lecció
+  `analytics_events`, TTL sobre `expire_at` (25 mesos, coherent amb la política
+  de privadesa). Local: SQLite `analytics-local.sqlite3` (ignorat a git).
+- Tauler privat: `/stats/<STATS_TOKEN>/` (nginx `location ^~ /stats/` sense
+  access_log). Token incorrecte o no configurat → 404.
+- Polítiques de privadesa i cookies (ca/es) actualitzades amb aquesta mesura.
+
+- Notes de disseny: la sessió no pot travessar mitjanit (el hash és diari);
+  "visitants" en rangs llargs = suma de visitants diaris; no es distingeix
+  nou/recurrent (exigiria emmagatzematge al dispositiu). El tauler llegeix tots
+  els esdeveniments del rang i agrega en Python (memòria cau 60 s): suficient
+  pel volum actual; si creix molt, afegir agregats diaris precalculats.
+- ⚠️ Amb `ANALYTICS_BACKEND` no definit, s'usa SQLite: a Cloud Run es perdria
+  en cada arrencada. Cal `ANALYTICS_BACKEND=firestore` a producció.
+- Els logs de petició de Cloud Run sí contenen l'URL amb el token (només
+  visibles per als propietaris del projecte GCP).
+- Enllaços de campanya: `?utm_source=instagram&utm_medium=social`,
+  `utm_medium=qr` per a fulletons/targetes.
+
+### Desplegament pendent (cal `gcloud auth login`, el token havia caducat)
+```bash
+gcloud services enable firestore.googleapis.com --project ultrabiz-admin
+gcloud firestore databases create --database=juditcamps \
+  --location=europe-west1 --type=firestore-native --project ultrabiz-admin
+gcloud firestore fields ttls update expire_at --collection-group=analytics_events \
+  --enable-ttl --database=juditcamps --project ultrabiz-admin
+# El compte de servei de Cloud Run necessita roles/datastore.user.
+gcloud run deploy juditcamps --source . --region europe-west1 ... \
+  --update-env-vars ANALYTICS_BACKEND=firestore,ANALYTICS_FIRESTORE_DB=juditcamps,\
+STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
+```
+
 ## 13. Pendent / pròxims passos
 
 0. **Dades legals** (revisió legal del 13/10): ✅ NIF 47792007P i col·legiada
@@ -239,3 +290,9 @@ vista). Adreça encara visible.
 5. Opcional: recuperar la botiga de l'ebook "12 mesos, 12 canvis" i la reserva
    de cita online (no migrades de la web antiga).
 6. Opcional: moure DNS a Cloud DNS si es vol IPv6 (AAAA) complet.
+7. **Desplegar l'analítica** (§12b): Firestore `juditcamps` + TTL, generar
+   `STATS_TOKEN` i `ANALYTICS_SALT` (millor a Secret Manager), deploy amb
+   `ANALYTICS_BACKEND=firestore`, verificar `/api/pulse` i passar l'enllaç
+   privat del tauler a la Judit.
+8. Opcional: refrescar la base GeoIP (DB-IP publica cada mes; es renova sola a
+   cada redeploy).

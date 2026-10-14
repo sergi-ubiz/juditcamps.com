@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="referrer" content="no-referrer">
+    <title>Audiència · Judit Camps</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="stylesheet" href="assets/dashboard.css?v=2026101401">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <img src="/assets/leaf.png" alt="" width="20" height="29">
+        <div>
+            <strong>Judit Camps</strong>
+            <span>Audiència del web</span>
+        </div>
+    </div>
+    <div class="live" id="live" title="Visitants amb activitat als últims 5 minuts">
+        <span class="live-dot"></span>
+        <span id="live-count">–</span> ara mateix
+    </div>
+</header>
+
+<section class="toolbar" aria-label="Període i opcions">
+    <div class="presets" role="group" aria-label="Període">
+        <button type="button" data-preset="today">Avui</button>
+        <button type="button" data-preset="yesterday">Ahir</button>
+        <button type="button" data-preset="7d">7 dies</button>
+        <button type="button" data-preset="30d">30 dies</button>
+        <button type="button" data-preset="90d">90 dies</button>
+        <button type="button" data-preset="month">Aquest mes</button>
+        <button type="button" data-preset="lastmonth">Mes passat</button>
+        <button type="button" data-preset="12m">12 mesos</button>
+    </div>
+    <div class="custom-range">
+        <label>Des de <input type="date" id="from"></label>
+        <label>Fins a <input type="date" id="to"></label>
+        <label>Agrupar per
+            <select id="interval">
+                <option value="auto">Automàtic</option>
+                <option value="hour">Hora</option>
+                <option value="day">Dia</option>
+                <option value="week">Setmana</option>
+                <option value="month">Mes</option>
+            </select>
+        </label>
+        <a class="btn-export" id="export" href="#" download>Exporta CSV</a>
+    </div>
+</section>
+
+<section class="filters" id="filters" hidden aria-label="Filtres actius"></section>
+
+<main class="content">
+    <p class="period" id="period"></p>
+    <section class="kpis" id="kpis" aria-label="Indicadors principals"></section>
+
+    <section class="card chart-card">
+        <div class="card-head">
+            <h2 id="chart-title">Visitants</h2>
+            <div class="legend">
+                <span class="legend-current">Període actual</span>
+                <span class="legend-previous">Període anterior</span>
+            </div>
+        </div>
+        <div class="chart" id="chart"></div>
+    </section>
+
+    <div class="grid">
+        <section class="card" data-panel="channels">
+            <div class="card-head"><h2>Canals d'adquisició</h2></div>
+            <div class="list" data-list="channel"></div>
+        </section>
+        <section class="card" data-panel="sources">
+            <div class="card-head">
+                <h2>Fonts</h2>
+                <div class="tabs" data-tabs>
+                    <button type="button" data-dim="source" class="active">Font</button>
+                    <button type="button" data-dim="referrer_host">Domini</button>
+                </div>
+            </div>
+            <div class="list"></div>
+        </section>
+        <section class="card wide" data-panel="pages">
+            <div class="card-head">
+                <h2>Contingut</h2>
+                <div class="tabs" data-tabs>
+                    <button type="button" data-dim="pages" class="active">Pàgines</button>
+                    <button type="button" data-dim="entry_pages">Pàgines d'entrada</button>
+                </div>
+            </div>
+            <div class="list"></div>
+        </section>
+        <section class="card" data-panel="geo">
+            <div class="card-head">
+                <h2>Ubicació</h2>
+                <div class="tabs" data-tabs>
+                    <button type="button" data-dim="country" class="active">País</button>
+                    <button type="button" data-dim="region">Regió</button>
+                    <button type="button" data-dim="city">Ciutat</button>
+                </div>
+            </div>
+            <div class="list"></div>
+        </section>
+        <section class="card" data-panel="tech">
+            <div class="card-head">
+                <h2>Tecnologia</h2>
+                <div class="tabs" data-tabs>
+                    <button type="button" data-dim="device" class="active">Dispositiu</button>
+                    <button type="button" data-dim="browser">Navegador</button>
+                    <button type="button" data-dim="os">Sistema</button>
+                </div>
+            </div>
+            <div class="list"></div>
+        </section>
+        <section class="card" data-panel="campaigns">
+            <div class="card-head">
+                <h2>Campanyes (UTM)</h2>
+                <div class="tabs" data-tabs>
+                    <button type="button" data-dim="utm_campaign" class="active">Campanya</button>
+                    <button type="button" data-dim="utm_source">Origen</button>
+                    <button type="button" data-dim="utm_medium">Mitjà</button>
+                </div>
+            </div>
+            <div class="list"></div>
+        </section>
+        <section class="card" data-panel="lang">
+            <div class="card-head"><h2>Idioma de la web</h2></div>
+            <div class="list" data-list="lang"></div>
+        </section>
+        <section class="card wide">
+            <div class="card-head">
+                <h2>Quan arriben les visites</h2>
+                <span class="hint">Sessions per dia de la setmana i hora</span>
+            </div>
+            <div class="heatmap" id="heatmap"></div>
+        </section>
+    </div>
+
+    <section class="card notes">
+        <h2>Com es mesura</h2>
+        <dl>
+            <dt>Visitants</dt>
+            <dd>Persones úniques estimades. Sense cookies: l'identificador anònim
+            canvia cada dia, de manera que una persona que torna un altre dia
+            compta de nou.</dd>
+            <dt>Sessió</dt>
+            <dd>Visites seguides d'una mateixa persona sense pauses de més de 30
+            minuts.</dd>
+            <dt>Taxa de rebot</dt>
+            <dd>Sessions sense interacció: menys de 10 s de temps actiu, una sola
+            pàgina i cap conversió (criteri de GA4).</dd>
+            <dt>Durada</dt>
+            <dd>Temps actiu real, només amb la pestanya visible.</dd>
+            <dt>Conversió</dt>
+            <dd>Enviament correcte del formulari de contacte.</dd>
+            <dt>Privadesa</dt>
+            <dd>No es desen IP ni cookies; la ubicació és aproximada (base de dades
+            DB-IP Lite, local). No es compten robots ni navegadors amb Global
+            Privacy Control.</dd>
+        </dl>
+        <label class="ignore">
+            <input type="checkbox" id="ignore-me">
+            No comptar les meves visites des d'aquest navegador
+        </label>
+        <p class="credit">Geolocalització: <a href="https://db-ip.com" rel="noopener noreferrer">IP Geolocation by DB-IP</a> (CC BY 4.0).</p>
+    </section>
+</main>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+<div class="toast" id="toast" role="alert" hidden></div>
+
+<script src="assets/dashboard.js?v=2026101401"></script>
+</body>
+</html>

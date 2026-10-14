@@ -4,3 +4,7 @@ assets-src/
 nohup.out
 __pycache__/
 *.pyc
+analytics-local.sqlite3
+geo/
+.venv/
+.pytest_cache/
