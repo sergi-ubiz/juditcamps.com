@@ -16,7 +16,7 @@ xats en paral·lel) hi continuï sense trepitjar-se.
 - ✅ **WEB EN VIU AL DOMINI PROPI: https://juditcamps.com** (HTTP 200, TLS vàlid).
   - `www.juditcamps.com` → 301 a l'arrel; `http://` → 302 a `https://`.
   - Cloud Run (projecte `ultrabiz-admin`, regió `europe-west1`), servei
-    `juditcamps`, revisió **`juditcamps-00012-gxw`** (15/10, commit desplegat `8d07d81`).
+    `juditcamps`, revisió **`juditcamps-00013-8b6`** (15/10, commit desplegat `4bb38a1`).
   - URL interna: https://juditcamps-588935605619.europe-west1.run.app
   - `/api/health` respon 200 (`smtp_configured:false`, `turnstile_configured:true`).
 - ✅ **Revisió legal RGPD / LOPDGDD / LSSI feta** (13/10): avís legal, privadesa i
