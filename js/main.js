@@ -5,13 +5,151 @@
  * - Enviament del formulari de contacte al backend propi (/api/contact)
  * - Turnstile es carrega només quan l'usuari interactua amb el formulari, perquè
  *   cap visitant que no l'utilitzi enviï dades a Cloudflare.
- * - Mesura d'audiència pròpia i anònima (/api/pulse): sense cookies ni
- *   emmagatzematge al dispositiu i sense tercers.
+ * - Mesura d'audiència pròpia i anònima (/api/pulse).
+ * - Google Analytics 4: només després del consentiment explícit.
  */
 (function () {
     "use strict";
 
+    var googleAnalytics = createGoogleAnalyticsConsent();
     var analytics = createAnalytics();
+
+    /**
+     * Google Analytics només s'inicialitza quan la persona accepta les cookies.
+     * La preferència es desa localment per recordar-la i es pot canviar al peu.
+     */
+    function createGoogleAnalyticsConsent() {
+        var measurementId = "G-B6JZRML5Q7";
+        var storageKey = "jc-google-analytics-consent";
+        var isSpanish = document.documentElement.lang === "es";
+        var labels = isSpanish ? {
+            title: "Privacidad y cookies",
+            text: "Usamos Google Analytics para conocer las visitas y mejorar la web. Solo se activa si aceptas sus cookies de análisis. Nuestra medición propia y anónima funciona por separado.",
+            accept: "Aceptar analítica",
+            reject: "Rechazar analítica",
+            info: "Política de cookies",
+            settings: "Preferencias de cookies"
+        } : {
+            title: "Privadesa i galetes",
+            text: "Fem servir Google Analytics per conèixer les visites i millorar el web. Només s'activa si n'acceptes les galetes d'anàlisi. La nostra mesura pròpia i anònima funciona per separat.",
+            accept: "Acceptar analítica",
+            reject: "Rebutjar analítica",
+            info: "Política de galetes",
+            settings: "Preferències de galetes"
+        };
+        var savedChoice = null;
+        try {
+            savedChoice = localStorage.getItem(storageKey);
+        } catch (err) {
+            /* Sense emmagatzematge local, es demana consentiment en cada visita. */
+        }
+
+        function setGoogleConsent(granted) {
+            if (typeof window.gtag === "function") {
+                window.gtag("consent", "update", {
+                    analytics_storage: granted ? "granted" : "denied",
+                    ad_storage: "denied",
+                    ad_user_data: "denied",
+                    ad_personalization: "denied"
+                });
+            }
+        }
+
+        function clearGoogleCookies() {
+            document.cookie.split(";").forEach(function (part) {
+                var name = part.split("=")[0].trim();
+                if (/^_ga(?:_|$)/.test(name)) {
+                    document.cookie = name + "=; Max-Age=0; path=/; SameSite=Lax";
+                    document.cookie = name + "=; Max-Age=0; path=/; domain=juditcamps.com; SameSite=Lax";
+                }
+            });
+        }
+
+        function loadGoogleAnalytics() {
+            if (window.googleAnalyticsLoaded || navigator.globalPrivacyControl) return;
+            window.googleAnalyticsLoaded = true;
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { window.dataLayer.push(arguments); };
+            window.gtag("consent", "default", {
+                analytics_storage: "granted",
+                ad_storage: "denied",
+                ad_user_data: "denied",
+                ad_personalization: "denied"
+            });
+            window.gtag("js", new Date());
+            window.gtag("config", measurementId, {
+                allow_google_signals: false,
+                allow_ad_personalization_signals: false,
+                cookie_expires: 15552000
+            });
+            var script = document.createElement("script");
+            script.async = true;
+            script.src = "https://www.googletagmanager.com/gtag/js?id=" + measurementId;
+            document.head.appendChild(script);
+        }
+
+        function saveChoice(granted) {
+            savedChoice = granted ? "granted" : "denied";
+            try {
+                localStorage.setItem(storageKey, savedChoice);
+            } catch (err) {
+                /* La tria continua vigent durant aquesta pàgina. */
+            }
+            if (granted && !navigator.globalPrivacyControl) {
+                loadGoogleAnalytics();
+                setGoogleConsent(true);
+            } else {
+                setGoogleConsent(false);
+                clearGoogleCookies();
+            }
+            banner.hidden = true;
+        }
+
+        var banner = document.createElement("section");
+        banner.className = "cookie-consent";
+        banner.setAttribute("role", "dialog");
+        banner.setAttribute("aria-labelledby", "cookie-consent-title");
+        banner.innerHTML = "<div class=\"cookie-consent-copy\"><h2 id=\"cookie-consent-title\"></h2>" +
+            "<p></p><a class=\"cookie-consent-info\"></a></div>" +
+            "<div class=\"cookie-consent-actions\"><button type=\"button\" class=\"cookie-reject\"></button>" +
+            "<button type=\"button\" class=\"cookie-accept\"></button></div>";
+        banner.querySelector("h2").textContent = labels.title;
+        banner.querySelector("p").textContent = labels.text;
+        var infoLink = banner.querySelector(".cookie-consent-info");
+        infoLink.textContent = labels.info;
+        infoLink.href = isSpanish ? "cookies.html" : (location.pathname.indexOf("/es/") === 0 ? "../cookies.html" : "cookies.html");
+        banner.querySelector(".cookie-reject").textContent = labels.reject;
+        banner.querySelector(".cookie-reject").addEventListener("click", function () { saveChoice(false); });
+        banner.querySelector(".cookie-accept").textContent = labels.accept;
+        banner.querySelector(".cookie-accept").addEventListener("click", function () { saveChoice(true); });
+        document.body.appendChild(banner);
+
+        var settingsLink = document.createElement("button");
+        settingsLink.type = "button";
+        settingsLink.className = "cookie-settings-link";
+        settingsLink.textContent = labels.settings;
+        settingsLink.addEventListener("click", function () { banner.hidden = false; });
+        var legalNav = document.querySelector(".site-footer nav");
+        if (legalNav) {
+            legalNav.appendChild(document.createTextNode(" · "));
+            legalNav.appendChild(settingsLink);
+        }
+
+        if (savedChoice === "granted" && !navigator.globalPrivacyControl) {
+            banner.hidden = true;
+            loadGoogleAnalytics();
+        } else if (savedChoice === "denied" || navigator.globalPrivacyControl) {
+            banner.hidden = true;
+        }
+
+        return {
+            conversion: function (name) {
+                if (savedChoice === "granted" && typeof window.gtag === "function") {
+                    window.gtag("event", "generate_lead", { event_label: name });
+                }
+            }
+        };
+    }
 
     /**
      * Mesura anònima de visites, temps actiu, desplaçament i conversions.
@@ -107,6 +245,7 @@
                 var payload = context("conversion", newId());
                 payload.n = name;
                 send(payload, false);
+                googleAnalytics.conversion(name);
             }
         };
     }

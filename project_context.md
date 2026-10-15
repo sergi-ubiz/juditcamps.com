@@ -6,8 +6,8 @@ actual, decisions i pendents, perquè qualsevol persona o IA (inclosos diversos
 xats en paral·lel) hi continuï sense trepitjar-se.
 
 - Data de creació: 12 d'octubre de 2026.
-- Última actualització: 14 d'octubre de 2026 (analítica d'audiències pròpia;
-  transferència de domini a GoDaddy, versió castellana, logo `es`, Turnstile i desplegament de metadades SEO/AI).
+- Última actualització: 15 d'octubre de 2026 (GA4 d'Ultrabiz, bàner de consentiment
+  bilingüe, actualització de polítiques de cookies/privadesa).
 
 ---
 
@@ -33,9 +33,10 @@ xats en paral·lel) hi continuï sense trepitjar-se.
   convida a escriure a `info@juditcamps.com` (també visible a la secció de
   contacte).
 - 🟡 **Analítica d'audiències pròpia FETA i commitejada, però NO desplegada**
-  (sense cookies, tauler privat a `/stats/<STATS_TOKEN>/`). Provada en local
-  (15 proves, nginx + gunicorn, navegador). Producció en viu encara és la
-  revisió anterior, sense recollida. Vegeu §12b.
+  (sense cookies, tauler privat a `/stats/<STATS_TOKEN>/`). Perquè sigui
+  persistent a Cloud Run necessita Firestore. Vegeu §12b. Separadament, la
+  propietat GA4 d'Ultrabiz ja està identificada; la integració web amb
+  consentiment està preparada al codi i pendent del desplegament d'aquesta tasca.
 
 - 🟡 **Transferència de registrador a GoDaddy en curs** (juditcamps.com i
   ultra-biz.net, prevista 19/10). ⚠️ Abans de canviar nameservers cal corregir
@@ -44,8 +45,8 @@ xats en paral·lel) hi continuï sense trepitjar-se.
 ### Blocadors (requereixen acció humana)
 1. **App Password de Google per a `info@juditcamps.com`** (SMTP_USER +
    SMTP_PASSWORD) — §9. Necessari perquè el formulari enviï correus.
-2. `gcloud auth login` (el token de `sergi@ultra-biz.net` havia caducat el
-   13/10) per poder crear Firestore i desplegar l'analítica — §12b.
+2. Configurar Firestore només si es vol conservar i consultar el tauler propi
+   d'analítica — §12b. Google Analytics 4 no depèn de Firestore.
 
 ---
 
@@ -307,11 +308,28 @@ del grau de NHiD (UVic-UCC), +20 anys de consulta, especialitat digestiva.
 **No es mencionen**: Centre Mèdic Vic, FORMANutricional, Duo Professionals ni
 el perfil emprenedor/inversió.
 
-## 12b. Analítica d'audiències pròpia (13/10/2026, vespre)
+## 12b. Analítica d'audiències (13–15/10/2026)
 
-Decisió: **mesura pròpia, sense Google Analytics ni cap tercer, sense cookies**
-(no cal bàner de consentiment). Codi a `analytics/` (domain, enrich, store,
-report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
+Hi ha dues opcions separades: GA4 d'Ultrabiz per a informes estàndard, i la
+mesura pròpia del projecte amb tauler privat. GA4 es carrega només després del
+consentiment explícit; la mesura pròpia és sense cookies i segueix la base
+jurídica descrita a les polítiques. Codi propi a `analytics/` (domain, enrich,
+store, report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
+
+- Propietat GA4: compte d'Ultrabiz **JuditCamps**, propietat **Judit Camps**,
+  flux web `https://www.juditcamps.com`, measurement ID `G-B6JZRML5Q7`.
+  Comprovada el 15/10: la propietat mostrava que encara no havia rebut dades en
+  les darreres 48 h. Enhanced Measurement és desactivat; el tag configurat recull
+  pageviews i envia `generate_lead` després d'un enviament reeixit del formulari.
+  El desplegament d'aquesta versió és necessari perquè comenci la recollida.
+- Bàner propi bilingüe: Acceptar o rebutjar analítica amb la mateixa prominència;
+  preferència `jc-google-analytics-consent` desada al navegador i canviable des
+  de l'enllaç del peu. Si es rebutja, el tag de Google no es carrega. Publicitat,
+  Google Signals i personalització d'anuncis desactivats al codi.
+- Configuració GA4 verificada: retenció d'esdeveniments 2 mesos; dades d'usuari
+  14 mesos (reinici en activitat nova). No s'ha canviat cap ajust del compte.
+- El flux compta pageviews automàtics i envia `generate_lead` només quan el
+  formulari s'envia correctament i hi ha consentiment GA4.
 
 - Recollida: `js/main.js` → `POST /api/pulse` (pageview, engagement en tancar la
   pestanya, conversió `contact_submit` quan el formulari s'envia bé).
@@ -332,14 +350,15 @@ report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
   nou/recurrent (exigiria emmagatzematge al dispositiu). El tauler llegeix tots
   els esdeveniments del rang i agrega en Python (memòria cau 60 s): suficient
   pel volum actual; si creix molt, afegir agregats diaris precalculats.
-- ⚠️ Amb `ANALYTICS_BACKEND` no definit, s'usa SQLite: a Cloud Run es perdria
-  en cada arrencada. Cal `ANALYTICS_BACKEND=firestore` a producció.
+- ⚠️ Amb `ANALYTICS_BACKEND` no definit, la mesura pròpia usa SQLite: a Cloud Run
+  es perdria en cada arrencada. Cal Firestore només si es vol conservar aquesta
+  mesura i el tauler propi. GA4 guarda les seves dades a la propietat de Google.
 - Els logs de petició de Cloud Run sí contenen l'URL amb el token (només
   visibles per als propietaris del projecte GCP).
 - Enllaços de campanya: `?utm_source=instagram&utm_medium=social`,
   `utm_medium=qr` per a fulletons/targetes.
 
-### Desplegament pendent (cal `gcloud auth login`, el token havia caducat)
+### Configuració opcional del tauler propi (requereix permisos GCP)
 ```bash
 gcloud services enable firestore.googleapis.com --project ultrabiz-admin
 gcloud firestore databases create --database=juditcamps \
@@ -376,10 +395,10 @@ STATS_TOKEN=<secret>,ANALYTICS_SALT=<secret>
 5. Opcional: recuperar la botiga de l'ebook "12 mesos, 12 canvis" i la reserva
    de cita online (no migrades de la web antiga).
 6. Opcional: moure DNS a Cloud DNS si es vol IPv6 (AAAA) complet.
-7. **Desplegar l'analítica** (§12b): Firestore `juditcamps` + TTL, generar
-   `STATS_TOKEN` i `ANALYTICS_SALT` (millor a Secret Manager), deploy amb
-   `ANALYTICS_BACKEND=firestore`, verificar `/api/pulse` i passar l'enllaç
-   privat del tauler a la Judit.
+7. **Opcional: activar el tauler d'analítica propi** (§12b): crear Firestore
+   `juditcamps` + TTL, generar `STATS_TOKEN` i `ANALYTICS_SALT` (millor a Secret
+   Manager), desplegar amb `ANALYTICS_BACKEND=firestore`, verificar `/api/pulse`
+   i facilitar l'enllaç privat a la Judit. GA4 és independent.
 8. Opcional: refrescar la base GeoIP (DB-IP publica cada mes; es renova sola a
    cada redeploy).
 9. Afegir SPF + DMARC i activar DKIM al Workspace (§7, pendent de confirmar).

@@ -252,6 +252,52 @@ a { color: var(--green-700); }
 .site-footer a { color: var(--green-300); text-decoration: none; }
 .site-footer a:hover { text-decoration: underline; }
 .site-footer p { margin: 10px 0 0; }
+.cookie-settings-link {
+    border: 0;
+    padding: 0;
+    background: none;
+    color: var(--green-300);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.cookie-consent {
+    position: fixed;
+    z-index: 1000;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: min(760px, calc(100vw - 40px));
+    padding: 22px 24px;
+    border: 1px solid rgba(90, 79, 76, 0.18);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: 0 12px 44px rgba(38, 31, 29, 0.2);
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.cookie-consent[hidden] { display: none; }
+.cookie-consent-copy { flex: 1; }
+.cookie-consent h2 { margin: 0 0 5px; font: 600 1.1rem var(--font-display); color: var(--green-900); }
+.cookie-consent p { margin: 0 0 5px; }
+.cookie-consent-info { color: var(--green-700); }
+.cookie-consent-actions { display: flex; flex-direction: column; gap: 8px; min-width: 175px; }
+.cookie-consent-actions button {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid var(--green-700);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--green-900);
+    font: 500 0.85rem var(--font-body);
+    cursor: pointer;
+}
+.cookie-consent-actions .cookie-accept { background: #fff; color: var(--green-900); }
+.cookie-consent-actions button:focus-visible,
+.cookie-settings-link:focus-visible { outline: 3px solid var(--green-500); outline-offset: 3px; }
 
 /* ---------- Animacions reveal ---------- */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -276,4 +322,8 @@ a { color: var(--green-700); }
     .nav-links.open { display: flex; }
     .hero { padding: 70px 0 90px; }
     .section { padding: 64px 0; }
+}
+@media (max-width: 620px) {
+    .cookie-consent { right: 12px; bottom: 12px; width: calc(100vw - 24px); flex-direction: column; align-items: stretch; gap: 14px; padding: 18px; }
+    .cookie-consent-actions { flex-direction: column; }
 }

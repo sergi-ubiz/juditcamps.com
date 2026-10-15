@@ -13,9 +13,9 @@ index.html          Pàgina principal (filosofia, qui sóc, serveis, mètode, co
 avis-legal.html     Avís legal
 privadesa.html      Política de privadesa (RGPD)
 cookies.html        Política de cookies
-css/style.css       Estils (paleta verda/neutra, Cormorant Garamond + Inter)
-js/main.js          Menú, animacions i enviament del formulari
-assets/             Logo SVG, favicon
+css/style.css       Estils (paleta taupe/menta, Quicksand + Inter)
+js/main.js          Menú, formulari, consentiment GA4 i analítica pròpia
+assets/             Logos, imatges, fonts i favicon
 robots.txt          Obert a cercadors i crawlers d'IA (GPTBot, ClaudeBot…)
 llms.txt            Resum del lloc per a assistents d'IA
 sitemap.xml         Mapa del lloc
@@ -37,18 +37,26 @@ si no hi ha `SMTP_USER`/`SMTP_PASSWORD`, el correu es mostra per consola en lloc
 d'enviar-se. Amb `python3 -m http.server` el formulari no funciona (no hi ha
 `/api/contact`).
 
-## Analítica d'audiències pròpia
+## Analítica
 
-Mesura de visites sense cookies ni serveis de tercers (mòdul `analytics/`):
+El web combina Google Analytics 4 (només amb consentiment) i una mesura pròpia
+separada, implementada al mòdul `analytics/`:
 
-- `js/main.js` envia a `POST /api/pulse` la visita, el temps actiu, el
-  desplaçament i les conversions (formulari enviat). Respecta Global Privacy
-  Control.
+- Google Analytics 4: propietat «Judit Camps» d'Ultrabiz, només es carrega quan
+  la persona accepta les cookies d'analítica. Identificador `G-B6JZRML5Q7`.
+  La preferència es pot canviar al peu del web. No s'activa publicitat ni
+  personalització d'anuncis.
+- La mesura pròpia envia a `POST /api/pulse` les visites, el temps actiu, el
+  desplaçament i les conversions. Respecta Global Privacy Control i no fa servir
+  cookies d'analítica.
+
 - El servidor geolocalitza la IP amb la base local DB-IP City Lite
   (`scripts/download_geoip.py`, s'inclou a la imatge) i la descarta; el visitant
   s'identifica amb un hash anònim que rota cada dia.
-- Persistència: Firestore en producció (`ANALYTICS_BACKEND=firestore`), SQLite
-  en local (`analytics-local.sqlite3`).
+- Persistència del mòdul propi: Firestore quan es configura
+  (`ANALYTICS_BACKEND=firestore`), SQLite en local (`analytics-local.sqlite3`).
+  Firestore encara s'ha de configurar per conservar aquestes dades a Cloud Run;
+  GA4 guarda les seves dades a la propietat d'Ultrabiz i no depèn de Firestore.
 - **Tauler privat**: `https://juditcamps.com/stats/<STATS_TOKEN>/` (sense token
   configurat respon 404). KPI amb comparació amb el període anterior, evolució,
   canals, fonts, pàgines, ubicació, dispositius, campanyes UTM, mapa de calor i
@@ -69,22 +77,23 @@ En local: `STATS_TOKEN=prova123 python3 app.py` i obrir
 Per etiquetar campanyes: `https://juditcamps.com/?utm_source=instagram&utm_medium=social&utm_campaign=nom`
 (o `utm_medium=qr` per a fulletons i targetes).
 
-## Configuració pendent abans de publicar
+## Pendents de configuració
 
-1. **Formulari de contacte** — crear un formulari a [Formspree](https://formspree.io)
-   i substituir `FORMSPREE_ID` a `index.html`.
-2. **Captcha** — crear un widget a [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/)
-   per al domini `juditcamps.com` i substituir `TURNSTILE_SITE_KEY` a `index.html`.
-   Activar la verificació del token Turnstile dins la configuració de Formspree.
-3. **Imatge Open Graph** — afegir `assets/og-image.jpg` (1200×630) amb una foto
-   professional de la Judit.
+- Formulari: configurar les credencials SMTP de Google Workspace perquè pugui
+  enviar correus.
+- Mesura pròpia: configurar Firestore i els secrets `STATS_TOKEN` i
+  `ANALYTICS_SALT` per conservar dades i activar el tauler privat. Google
+  Analytics funciona per separat i no necessita Firestore.
 
 ## Seguretat
 
-- Content-Security-Policy estricta (meta + `_headers`).
+- Content-Security-Policy estricta (meta + `nginx.conf`), incloent els dominis
+  necessaris per a GA4.
 - Formulari amb captcha (Turnstile), honeypot anti-spam, validació i consentiment RGPD.
-- Sense cookies de seguiment; pàgines legals RGPD incloses.
-- Cap dependència JavaScript de tercers excepte Turnstile.
+- Cookies GA4 només amb consentiment; pàgines legals RGPD/cookies en català i
+  castellà.
+- Les dependències de tercers s'afegeixen només després del consentiment o quan
+  s'interactua amb el formulari (GA4 o Turnstile).
 
 ## Visibilitat en IA (AI SEO)
 
