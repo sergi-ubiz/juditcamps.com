@@ -16,7 +16,7 @@ xats en paral·lel) hi continuï sense trepitjar-se.
 - ✅ **WEB EN VIU AL DOMINI PROPI: https://juditcamps.com** (HTTP 200, TLS vàlid).
   - `www.juditcamps.com` → 301 a l'arrel; `http://` → 302 a `https://`.
   - Cloud Run (projecte `ultrabiz-admin`, regió `europe-west1`), servei
-    `juditcamps`, revisió **`juditcamps-00010-vcb`** (14/10, commit desplegat `01053a8`).
+    `juditcamps`, revisió **`juditcamps-00011-psh`** (15/10, commit desplegat `074811b`).
   - URL interna: https://juditcamps-588935605619.europe-west1.run.app
   - `/api/health` respon 200 (`smtp_configured:false`, `turnstile_configured:true`).
 - ✅ **Revisió legal RGPD / LOPDGDD / LSSI feta** (13/10): avís legal, privadesa i
@@ -32,11 +32,11 @@ xats en paral·lel) hi continuï sense trepitjar-se.
   Mentrestant `/api/contact` respon 503 i el visitant veu un missatge que el
   convida a escriure a `info@juditcamps.com` (també visible a la secció de
   contacte).
-- 🟡 **Analítica d'audiències pròpia FETA i commitejada, però NO desplegada**
-  (sense cookies, tauler privat a `/stats/<STATS_TOKEN>/`). Perquè sigui
-  persistent a Cloud Run necessita Firestore. Vegeu §12b. Separadament, la
-  propietat GA4 d'Ultrabiz ja està identificada; la integració web amb
-  consentiment està preparada al codi i pendent del desplegament d'aquesta tasca.
+- ✅ **GA4 d'Ultrabiz connectat amb consentiment previ** (propietat «Judit Camps»,
+  ID `G-B6JZRML5Q7`). El tag no es carrega fins que el visitant accepta.
+- 🟡 La mesura pròpia també és desplegada, però Cloud Run encara usa SQLite
+  efímer perquè Firestore no està configurat; el tauler privat no està activat
+  sense `STATS_TOKEN`. Firestore és opcional si els informes de GA4 són suficients.
 
 - 🟡 **Transferència de registrador a GoDaddy en curs** (juditcamps.com i
   ultra-biz.net, prevista 19/10). ⚠️ Abans de canviar nameservers cal corregir
@@ -319,9 +319,9 @@ store, report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
 - Propietat GA4: compte d'Ultrabiz **JuditCamps**, propietat **Judit Camps**,
   flux web `https://www.juditcamps.com`, measurement ID `G-B6JZRML5Q7`.
   Comprovada el 15/10: la propietat mostrava que encara no havia rebut dades en
-  les darreres 48 h. Enhanced Measurement és desactivat; el tag configurat recull
-  pageviews i envia `generate_lead` després d'un enviament reeixit del formulari.
-  El desplegament d'aquesta versió és necessari perquè comenci la recollida.
+  les darreres 48 h abans de connectar el codi. Enhanced Measurement és
+  desactivat; el tag recull pageviews i envia `generate_lead` després d'un
+  enviament reeixit del formulari, sempre amb consentiment.
 - Bàner propi bilingüe: Acceptar o rebutjar analítica amb la mateixa prominència;
   preferència `jc-google-analytics-consent` desada al navegador i canviable des
   de l'enllaç del peu. Si es rebutja, el tag de Google no es carrega. Publicitat,
@@ -338,9 +338,10 @@ store, report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
   conversió). Bots i Global Privacy Control exclosos.
 - Geolocalització offline DB-IP City Lite (CC BY 4.0, cal atribució: és al
   tauler), descarregada al build (`scripts/download_geoip.py`, ~127 MB).
-- Producció: Firestore, base de dades **`juditcamps`**, col·lecció
-  `analytics_events`, TTL sobre `expire_at` (25 mesos, coherent amb la política
-  de privadesa). Local: SQLite `analytics-local.sqlite3` (ignorat a git).
+- Disseny de persistència a producció: Firestore, base de dades **`juditcamps`**,
+  col·lecció `analytics_events`, TTL sobre `expire_at` (25 mesos, coherent amb
+  la política de privadesa). Encara no configurat a Cloud Run. Local: SQLite
+  `analytics-local.sqlite3` (ignorat a git).
 - Tauler privat: `/stats/<STATS_TOKEN>/` (nginx `location ^~ /stats/` sense
   access_log). Token incorrecte o no configurat → 404.
 - Polítiques de privadesa i cookies (ca/es) actualitzades amb aquesta mesura.
@@ -351,8 +352,8 @@ store, report, routes + `dashboard/`), proves a `tests/test_analytics.py`.
   els esdeveniments del rang i agrega en Python (memòria cau 60 s): suficient
   pel volum actual; si creix molt, afegir agregats diaris precalculats.
 - ⚠️ Amb `ANALYTICS_BACKEND` no definit, la mesura pròpia usa SQLite: a Cloud Run
-  es perdria en cada arrencada. Cal Firestore només si es vol conservar aquesta
-  mesura i el tauler propi. GA4 guarda les seves dades a la propietat de Google.
+  es perd en reiniciar la instància. Cal Firestore només si es vol conservar
+  aquesta mesura i activar el tauler propi. GA4 guarda les seves dades a Google.
 - Els logs de petició de Cloud Run sí contenen l'URL amb el token (només
   visibles per als propietaris del projecte GCP).
 - Enllaços de campanya: `?utm_source=instagram&utm_medium=social`,
